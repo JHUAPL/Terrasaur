@@ -1,0 +1,9 @@
+/.idea/
+/bin/
+/doc/_build
+/dist/
+/target/
+/3rd-party
+.DS_Store
+doc/tools/shortDescriptions.rst
+doc/tools/index.rst
