@@ -26,6 +26,6 @@ directory named for your system architecture (e.g. 3rd-party/Darwin_x86_64 on
 an intel macOS system):
 
 ```
-../buildAll.bash 3rd-party/$(uname -s)_$(uname -m)
+./buildAll.bash ../3rd-party/$(uname -s)_$(uname -m)
 ```
 
