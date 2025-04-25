@@ -42,6 +42,10 @@ if [ ! -d $GSL_HOME ]; then
     fi
     tar xfz gsl-${GSL_VERSION}.tar.gz
     (
+        if [ "$(uname)" == "Linux" ]; then
+            # Not sure why, but -lm is needed on some Linux systems
+            LDFLAGS="${LDFLAGS} -lm"
+        fi
         cd gsl-${GSL_VERSION}
         ./configure --prefix ${GSL_HOME}
         # make install cannot find certain header files?
