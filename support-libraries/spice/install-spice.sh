@@ -43,12 +43,7 @@ if [ ! -e ${SRCDIR}/JNISpice.tar.Z ]; then
     if [ "$ARCH" == "Darwin_x86_64" ]; then
         curl -RO https://naif.jpl.nasa.gov/pub/naif/misc/JNISpice/MacIntel_OSX_AppleC_Java1.8_64bit/packages/JNISpice.tar.Z
     elif [ "$ARCH" == "Darwin_arm64" ]; then
-        if [ -e /project/spice/toolkit/latest/JNISpice.tar.Z ]; then
-            # preinstalled on srn-devmac1
-            cp -p /project/spice/toolkit/latest/JNISpice.tar.Z .
-        else
-            echo "NAIF SPICE package not found for $ARCH"
-        fi
+        curl -RO https://naif.jpl.nasa.gov/pub/naif/misc/toolkit_dev/N0067/JNISpice/MacM1_OSX_clang_64bit/JNISpice.tar.Z
     elif [ "$ARCH" == "Linux_x86_64" ]; then
         curl -RO -N https://naif.jpl.nasa.gov/pub/naif/misc/JNISpice/PC_Linux_GCC_Java1.8_64bit/packages/JNISpice.tar.Z
     else
@@ -66,12 +61,7 @@ if [ ! -e ${SRCDIR}/toolkit.tar.Z ]; then
     if [ "$ARCH" == "Darwin_x86_64" ]; then
         curl -RO https://naif.jpl.nasa.gov/pub/naif/toolkit/FORTRAN/MacIntel_OSX_gfortran_64bit/packages/toolkit.tar.Z
     elif [ "$ARCH" == "Darwin_arm64" ]; then
-        if [ -e /project/spice/toolkit/latest/toolkit.tar.Z ]; then
-            # preinstalled on srn-devmac1
-            cp -p /project/spice/toolkit/latest/toolkit.tar.Z .
-        else
-            echo "NAIF SPICE package not found for $ARCH"
-        fi
+        curl -RO https://naif.jpl.nasa.gov/pub/naif/misc/toolkit_dev/N0067/FORTRAN/MacM1_OSX_gfortran_64bit/toolkit.tar.Z
     elif [ "$ARCH" == "Linux_x86_64" ]; then
         curl -RO -N https://naif.jpl.nasa.gov/pub/naif/toolkit//FORTRAN/PC_Linux_gfortran_64bit/packages/toolkit.tar.Z
     else
