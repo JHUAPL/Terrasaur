@@ -12,6 +12,7 @@ The Terrasaur code is available at [GitHub](https://github.com/JHUAPL/Terrasaur.
 You may need to install the following packages with 
 your favorite package manager:
 * [Apache Ant](https://ant.apache.org/) - needed for OpenCV Java support
+* [CMake](https://cmake.org/) - used to build VTK and OpenCV
 * [SQLite](https://www.sqlite.org/index.html) - needed for lidar-optimize
 
 ## Build the packages
@@ -29,3 +30,6 @@ an intel macOS system):
 ./buildAll.bash ../3rd-party/$(uname -s)_$(uname -m)
 ```
 
+### Note for macOS users
+
+We have found that the VTK library will not compile with the XCode command line tools version 16.3 with clang-1700.0.13.3.  We could successfully compile after downgrading to the Xcode 16 command line tools with clang-1600.026.3.
