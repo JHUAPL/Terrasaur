@@ -1,0 +1,13 @@
+.wy-nav-content {
+    max-width: 100%;
+}
+
+.figures-row {
+    display: flex;
+    justify-content: space-between;
+}
+.figures-row img {
+    max-width: 90%; /* Adjust percentage as needed */
+    height: auto;   /* Maintains aspect ratio */
+}
+
