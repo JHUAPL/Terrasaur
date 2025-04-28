@@ -1,26 +1,32 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>edu.jhuapl.ses.srn</groupId>
     <artifactId>Terrasaur</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 
-    <!-- Specifies organization -->
+    <inceptionYear>2025</inceptionYear>
     <organization>
-        <name>Johns Hopkins University Applied Physics Lab</name>
+        <name>Johns Hopkins University Applied Physics Laboratory</name>
         <url>https://www.jhuapl.edu</url>
     </organization>
 
-    <!-- publish to surfshop -->
-    <distributionManagement>
-        <repository>
-            <id>central</id>
-            <name>surfshop-snapshots</name>
-            <url>http://surfshop.jhuapl.edu:8081/artifactory/libs-snapshot-local
-            </url>
-        </repository>
-    </distributionManagement>
+    <developers>
+        <developer>
+            <id>HariNairJHUAPL</id>
+            <name>Hari Nair</name>
+            <email>Hari.Nair@jhuapl.edu</email>
+            <organization>JHUAPL</organization>
+            <organizationUrl>https://www.jhuapl.edu/</organizationUrl>
+        </developer>
+    </developers>
+
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>https://opensource.org/license/mit/</url>
+        </license>
+    </licenses>
 
     <properties>
         <package>Terrasaur</package>
@@ -46,8 +52,33 @@
         <plugins>
 
             <plugin>
+                <groupId>com.mycila</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <version>5.0.0</version>
+  <configuration>
+    <licenseSets>
+      <licenseSet>
+        <header>com/mycila/maven/plugin/license/templates/MIT.txt</header>
+          <includes>
+            <include>**/*.java</include>
+          </includes>
+      </licenseSet>
+    </licenseSets>
+  </configuration>
+  <executions>
+    <execution>
+      <id>check-license</id>
+      <phase>verify</phase>
+      <goals>
+        <goal>check</goal>
+      </goals>
+    </execution>
+  </executions>
+            </plugin>
+
+            <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.13.0</version>
+                <version>3.14.0</version>
                 <configuration>
                     <release>${maven.compiler.release}</release>
                     <annotationProcessorPaths>
@@ -93,10 +124,9 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.5.2</version>
+                <version>3.5.3</version>
                 <configuration>
-                    <argLine>
-                        -Djava.library.path=${project.basedir}/3rd-party/${env.ARCH}/spice/JNISpice/lib
+                    <argLine> -Djava.library.path=${project.basedir}/3rd-party/${env.ARCH}/spice/JNISpice/lib
                     </argLine>
                 </configuration>
             </plugin>
