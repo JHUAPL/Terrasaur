@@ -1,8 +1,10 @@
-# SBCLT Changelog
+# Terrasaur Changelog
 
-Repository is https://gitlab.jhuapl.edu/sbmt/sbclt/command-line-tools.  Git hash for each merge to main branch (except the most recent) are listed below in reverse chronological order.
+## April 28, 2025 - v1.0.1
 
-## November 26, 2024 
+- Add MIT license to repository and source code
+
+## April 27, 2025 - v1.0.0
 
 - Initial release
   

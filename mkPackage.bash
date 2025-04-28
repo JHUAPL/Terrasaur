@@ -247,7 +247,7 @@ for arch in 3rd-party/*; do
 done
 
 mvn -q -Dmdep.copyPom=true dependency:copy-dependencies
-rsync -a README.md CHANGELOG.md mkPackage.bash pom.xml doc src target/dependency "${pkgBase}"-src/
+rsync -a README.md CHANGELOG.md LICENSE.md mkPackage.bash pom.xml doc src target/dependency "${pkgBase}"-src/
 tar cfz ./dist/"${pkgBase}"-${rev}-src.tar.gz ./"${pkgBase}"-src
 echo -e "\nCreated ./dist/${pkgBase}-${rev}-src.tar.gz"
 /bin/rm -fr ./"${pkgBase}" ./"${pkgBase}"-src
