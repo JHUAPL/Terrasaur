@@ -43,56 +43,54 @@ import terrasaur.utils.AppVersion;
 
 public class DumpConfig implements TerrasaurTool {
 
-  @Override
-  public String shortDescription() {
-    return "Write a sample configuration file to use with Terrasaur, using defaults for DART.";
-  }
-
-  @Override
-  public String fullDescription(Options options) {
-    return WordUtils.wrap(
-        "This program writes out sample configuration files to be used with Terrasaur.  "
-            + "It takes a single argument, which is the name of the directory that will contain "
-            + "the configuration files to be written.",
-        80);
-  }
-
-  public static void main(String[] args) {
-    // if no arguments, print the usage and exit
-    if (args.length == 0) {
-      System.out.println(new DumpConfig().fullDescription(null));
-      System.exit(0);
+    @Override
+    public String shortDescription() {
+        return "Write a sample configuration file to use with Terrasaur, using defaults for DART.";
     }
 
-    // if -shortDescription is specified, print short description and exit.
-    for (String arg : args) {
-      if (arg.equals("-shortDescription")) {
-        System.out.println(new DumpConfig().shortDescription());
-        System.exit(0);
-      }
+    @Override
+    public String fullDescription(Options options) {
+        return WordUtils.wrap(
+                "This program writes out sample configuration files to be used with Terrasaur.  "
+                        + "It takes a single argument, which is the name of the directory that will contain "
+                        + "the configuration files to be written.",
+                80);
     }
 
-    File path = Paths.get(args[0]).toFile();
+    public static void main(String[] args) {
+        // if no arguments, print the usage and exit
+        if (args.length == 0) {
+            System.out.println(new DumpConfig().fullDescription(null));
+            System.exit(0);
+        }
 
-    ConfigBlock configBlock = TerrasaurConfig.getTemplate();
-    try (PrintWriter pw = new PrintWriter(path)) {
-      PropertiesConfiguration config = new ConfigBlockFactory().toConfig(configBlock);
-      PropertiesConfigurationLayout layout = config.getLayout();
+        // if -shortDescription is specified, print short description and exit.
+        for (String arg : args) {
+            if (arg.equals("-shortDescription")) {
+                System.out.println(new DumpConfig().shortDescription());
+                System.exit(0);
+            }
+        }
 
-      String now =
-          DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-              .withLocale(Locale.getDefault())
-              .withZone(ZoneOffset.UTC)
-              .format(Instant.now());
-      layout.setHeaderComment(
-          String.format(
-              "Configuration file for %s\nCreated %s UTC", AppVersion.getVersionString(), now));
+        File path = Paths.get(args[0]).toFile();
 
-      config.write(pw);
-    } catch (ConfigurationException | IOException e) {
-      throw new RuntimeException(e);
+        ConfigBlock configBlock = TerrasaurConfig.getTemplate();
+        try (PrintWriter pw = new PrintWriter(path)) {
+            PropertiesConfiguration config = new ConfigBlockFactory().toConfig(configBlock);
+            PropertiesConfigurationLayout layout = config.getLayout();
+
+            String now = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+                    .withLocale(Locale.getDefault())
+                    .withZone(ZoneOffset.UTC)
+                    .format(Instant.now());
+            layout.setHeaderComment(
+                    String.format("Configuration file for %s\nCreated %s UTC", AppVersion.getVersionString(), now));
+
+            config.write(pw);
+        } catch (ConfigurationException | IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        System.out.println("Wrote config file to " + path.getAbsolutePath());
     }
-
-    System.out.println("Wrote config file to " + path.getAbsolutePath());
-  }
 }

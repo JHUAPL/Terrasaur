@@ -27,19 +27,22 @@ import java.util.List;
 
 public abstract class ColorTable {
 
-  public enum FAMILY {
-    CATEGORICAL, CYCLIC, DIVERGENT, LINEAR
-  }
+    public enum FAMILY {
+        CATEGORICAL,
+        CYCLIC,
+        DIVERGENT,
+        LINEAR
+    }
 
-  protected final FAMILY family;
+    protected final FAMILY family;
 
-  protected ColorTable(FAMILY family) {
-    this.family = family;
-  }
+    protected ColorTable(FAMILY family) {
+        this.family = family;
+    }
 
-  public abstract List<Color> getColors();
+    public abstract List<Color> getColors();
 
-  public FAMILY getFamily() {
-    return family;
-  }
+    public FAMILY getFamily() {
+        return family;
+    }
 }

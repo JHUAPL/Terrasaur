@@ -78,5 +78,4 @@ public class PlotUtilsTest {
         assertTrue(Math.abs(PlotUtils.getRoundFloor(number, 6) + 434.789) < 0.0005);
         assertTrue(Math.abs(PlotUtils.getRoundFloor(number, 7) + 434.7882) < 0.00005);
     }
-
 }

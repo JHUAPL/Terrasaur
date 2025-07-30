@@ -23,26 +23,25 @@
 package terrasaur.fits;
 
 public enum UnitDir {
+    UX {
+        public int getAxis() {
+            return 1;
+        }
+    },
 
-  UX {
-    public int getAxis() {
-      return 1;
-    }
-  },
+    UY {
 
-  UY {
+        public int getAxis() {
+            return 2;
+        }
+    },
 
-    public int getAxis() {
-      return 2;
-    }
-  },
+    UZ {
 
-  UZ {
+        public int getAxis() {
+            return 3;
+        }
+    };
 
-    public int getAxis() {
-      return 3;
-    }
-  };
-
-  public abstract int getAxis();
+    public abstract int getAxis();
 }

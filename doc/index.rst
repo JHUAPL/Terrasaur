@@ -16,7 +16,7 @@ The Terrasaur package requires Java 21 or later.  Some freely available versions
 Download
 ~~~~~~~~
 
-Binary packages for use on Mac OS X and Linux are available at ...
+Binary packages for use on Mac OS X and Linux are available at `GitHub <https://github.com/JHUAPL/Terrasaur/releases>`__.
 
 We have not tried using the softare on Microsoft Windows, but users may try the Linux package with the `Windows Subsystem for Linux <https://docs.microsoft.com/en-us/windows/wsl/>`__.
 

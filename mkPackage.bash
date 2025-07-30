@@ -89,7 +89,7 @@ function build_jar() {
 
 function make_scripts() {
 
-    classes=$(jar tf "${scriptPath}"/target/${packageName}.jar | grep $appSrcDir | grep -v '\$' | grep -v "package-info" | grep class)
+    classes=$(jar tf ${scriptPath}/target/${packageName}.jar | grep $appSrcDir | grep -v '\$' | grep -v "package-info" | grep -v "Immutable" | grep class)
 
     for class in $classes; do
         base=$(basename "$class" ".class")

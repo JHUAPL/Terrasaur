@@ -30,7 +30,7 @@ public class PointListTest {
 
     @Ignore
     @Test
-    public void test01(){
+    public void test01() {
         Random r = new Random();
         PointList pl = new PointList();
         for (int i = 0; i < 100; i++) {
@@ -46,5 +46,4 @@ public class PointListTest {
         System.out.println(subSet.getY(0.5));
         System.out.println(pl.getY(0.5));
     }
-
 }

@@ -23,7 +23,7 @@ Local Model Comparison
 
 Download the :download:`reference<./support_files/EVAL20_wtr.obj>` and :download:`comparison<./support_files/EVAL20.obj>` 
 shape models.  You can view them in a tool such as 
-`ParaView<https://www.paraview.org/>`.
+`ParaView <https://www.paraview.org/>`__.
 
 .. figure:: images/CompareOBJ_local_1.png
 
@@ -32,8 +32,8 @@ shape models.  You can view them in a tool such as
 Run CompareOBJ to find the optimal transform to align the comparison with the reference:
 ::
 
-    CompareOBJ -computeOptimalRotationAndTranslation -model F3H-1/EVAL20.obj \ 
-    -reference F3H-1/EVAL20_wtr.obj -computeVerticalError verticalError.txt \
+    CompareOBJ -computeOptimalRotationAndTranslation -model EVAL20.obj \ 
+    -reference EVAL20_wtr.obj -computeVerticalError verticalError.txt \
     -saveOptimalShape optimal.obj -savePlateDiff plateDiff.txt -savePlateIndex plateIndex.txt
 
 The screen output is
@@ -77,7 +77,7 @@ model for comparison:
 
 ::
 
-    ShapeFormatConverter -input Bennu/Bennu49k.obj -output BennuComparison.obj \
+    ShapeFormatConverter -input Bennu49k.obj -output BennuComparison.obj \
     -rotate 5,0,0,1 -translate 0.01,-0.01,0.01
 
 This rotates the shape model by 5 degrees about the z axis and then translates 
@@ -94,11 +94,11 @@ Run CompareOBJ to find the optimal transform to align the comparison with the re
 
     CompareOBJ -computeOptimalRotationAndTranslation \
     -model BennuComparison.obj \
-    -reference Bennu/Bennu49k.obj \
-    -computeVerticalError CompareOBJ/terrasaur-verticalError.txt \
-    -saveOptimalShape CompareOBJ/terrasaur-optimal.obj \
-    -savePlateDiff CompareOBJ/terrasaur-plateDiff.txt \
-    -savePlateIndex CompareOBJ/terrasaur-plateIndex.txt
+    -reference Bennu49k.obj \
+    -computeVerticalError terrasaur-verticalError.txt \
+    -saveOptimalShape terrasaur-optimal.obj \
+    -savePlateDiff terrasaur-plateDiff.txt \
+    -savePlateIndex terrasaur-plateIndex.txt
 
 The screen output is
 

@@ -1,5 +1,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>edu.jhuapl.ses.srn</groupId>
     <artifactId>Terrasaur</artifactId>
@@ -42,7 +43,7 @@
         <maven.compiler.release>21</maven.compiler.release>
         <javafx.version>21.0.5</javafx.version>
 
-        <immutables.version>2.10.1</immutables.version>
+        <immutables.version>2.11.1</immutables.version>
         <jackfruit.version>1.1.1</jackfruit.version>
     </properties>
 
@@ -55,25 +56,29 @@
                 <groupId>com.mycila</groupId>
                 <artifactId>license-maven-plugin</artifactId>
                 <version>5.0.0</version>
-  <configuration>
-    <licenseSets>
-      <licenseSet>
-        <header>com/mycila/maven/plugin/license/templates/MIT.txt</header>
-          <includes>
-            <include>**/*.java</include>
-          </includes>
-      </licenseSet>
-    </licenseSets>
-  </configuration>
-  <executions>
-    <execution>
-      <id>check-license</id>
-      <phase>verify</phase>
-      <goals>
-        <goal>check</goal>
-      </goals>
-    </execution>
-  </executions>
+                <configuration>
+                    <licenseSets>
+                        <licenseSet>
+                            <header>com/mycila/maven/plugin/license/templates/MIT.txt</header>
+                            <includes>
+                                <include>**/*.java</include>
+                            </includes>
+                            <excludes>
+                                <exclude>3rd-party/**/*.java</exclude>
+                                <exclude>support-libraries/3rd-party/**/*.java</exclude>
+                            </excludes>
+                        </licenseSet>
+                    </licenseSets>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>check-license</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
 
             <plugin>
@@ -126,14 +131,15 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.5.3</version>
                 <configuration>
-                    <argLine> -Djava.library.path=${project.basedir}/3rd-party/${env.ARCH}/spice/JNISpice/lib
+                    <argLine>
+                        -Djava.library.path=${project.basedir}/3rd-party/${env.ARCH}/spice/JNISpice/lib
                     </argLine>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
-                <version>3.5.0</version>
+                <version>3.6.1</version>
                 <executions>
                     <execution>
                         <id>enforce-maven</id>
@@ -207,7 +213,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
-                <version>3.5.0</version>
+                <version>3.5.1</version>
                 <executions>
                     <execution>
                         <phase>generate-sources</phase>
@@ -222,6 +228,18 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>2.46.1</version>
+                <configuration>
+                    <java>
+                        <palantirJavaFormat />
+                    </java>
+                </configuration>
+            </plugin>
+
         </plugins>
     </build>
     <dependencies>
@@ -264,7 +282,7 @@
         <dependency>
             <groupId>commons-beanutils</groupId>
             <artifactId>commons-beanutils</artifactId>
-            <version>1.10.0</version>
+            <version>1.11.0</version>
         </dependency>
         <dependency>
             <groupId>commons-cli</groupId>
@@ -274,17 +292,22 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-configuration2</artifactId>
-            <version>2.11.0</version>
+            <version>2.12.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-csv</artifactId>
-            <version>1.13.0</version>
+            <version>1.14.1</version>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.18.0</version>
+            <version>2.20.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-text</artifactId>
+            <version>1.14.0</version>
         </dependency>
         <dependency>
             <groupId>com.beust</groupId>
@@ -294,7 +317,7 @@
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
-            <version>2.12.1</version>
+            <version>2.13.1</version>
         </dependency>
 
         <dependency>
@@ -315,17 +338,12 @@
         <dependency>
             <groupId>gov.nasa.gsfc.heasarc</groupId>
             <artifactId>nom-tam-fits</artifactId>
-            <version>1.20.2</version>
+            <version>1.21.1</version>
         </dependency>
         <dependency>
             <groupId>gov.nasa.jpl.naif</groupId>
             <artifactId>spice</artifactId>
             <version>N0067</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-text</artifactId>
-            <version>1.13.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>

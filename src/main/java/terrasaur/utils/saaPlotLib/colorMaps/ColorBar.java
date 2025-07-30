@@ -29,17 +29,16 @@ import org.immutables.value.Value;
 @Value.Immutable
 public abstract class ColorBar {
 
-  public abstract Rectangle rect();
+    public abstract Rectangle rect();
 
-  public abstract ColorRamp ramp();
+    public abstract ColorRamp ramp();
 
-  public abstract int numTicks();
+    public abstract int numTicks();
 
-  public abstract Function<Double, String> tickFunction();
+    public abstract Function<Double, String> tickFunction();
 
-  @Value.Default
-  public boolean log() {
-    return false;
-  }
-
+    @Value.Default
+    public boolean log() {
+        return false;
+    }
 }

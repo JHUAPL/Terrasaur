@@ -27,17 +27,15 @@ import terrasaur.fits.FitsHdr.FitsHdrBuilder;
 
 public interface ProductNamer {
 
-  public String getNameFrag(String productName, int fieldNum);
+    public String getNameFrag(String productName, int fieldNum);
 
-  public String productbaseName(FitsHdrBuilder hdrBuilder, AltwgDataType altwgProduct,
-      boolean isGlobal);
+    public String productbaseName(FitsHdrBuilder hdrBuilder, AltwgDataType altwgProduct, boolean isGlobal);
 
-  public String getVersion(FitsHdrBuilder hdrBuilder);
+    public String getVersion(FitsHdrBuilder hdrBuilder);
 
-  public double gsdFromHdr(FitsHdrBuilder hdrBuilder);
+    public double gsdFromHdr(FitsHdrBuilder hdrBuilder);
 
-  public NameConvention getNameConvention();
+    public NameConvention getNameConvention();
 
-  public double gsdFromFilename(String filename);
-
+    public double gsdFromFilename(String filename);
 }

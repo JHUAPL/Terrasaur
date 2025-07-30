@@ -29,8 +29,7 @@ import terrasaur.fits.FitsData;
 
 public interface DTMHeader {
 
-  public List<HeaderCard> createFitsHeader(List<HeaderCard> planeList) throws HeaderCardException;
+    public List<HeaderCard> createFitsHeader(List<HeaderCard> planeList) throws HeaderCardException;
 
-  public void setData(FitsData fitsData);
-
+    public void setData(FitsData fitsData);
 }

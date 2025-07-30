@@ -29,14 +29,16 @@ import jackfruit.annotations.Jackfruit;
 @Jackfruit(prefix = "spc")
 public interface SPCBlock {
 
-      String introLines =
+    String introLines =
             """
       ###############################################################################
       # SPC PARAMETERS
       ###############################################################################
       """;
 
-    @Comment(introLines + """
+    @Comment(
+            introLines
+                    + """
       SPC defines the camera X axis to be increasing to the right, Y to
       be increasing down, and Z to point into the page:
 
@@ -72,5 +74,4 @@ public interface SPCBlock {
     @Comment("Map the camera Z axis to a SPICE axis.  See flipX for details.")
     @DefaultValue("-3")
     int flipZ();
-
 }
