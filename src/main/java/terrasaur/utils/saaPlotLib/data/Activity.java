@@ -37,26 +37,30 @@ import terrasaur.utils.saaPlotLib.util.LegendEntry;
 @Value.Immutable
 public abstract class Activity {
 
-  public abstract String name();
+    public abstract String name();
 
-  public abstract Color color();
+    public abstract Color color();
 
-  public abstract Optional<Symbol> symbol();
+    public abstract Optional<Symbol> symbol();
 
-  private final IntervalSet.Builder intervals = IntervalSet.builder();
+    private final IntervalSet.Builder intervals = IntervalSet.builder();
 
-  public List<Interval> getIntervals() {
-    IntervalSet intervalSet= intervals.build();
-    List<Interval> intervalList = new ArrayList<>();
-    for (UnwritableInterval i : intervalSet) intervalList.add(new Interval(i.getBegin(), i.getEnd()));
-    return intervalList;
-  }
+    public List<Interval> getIntervals() {
+        IntervalSet intervalSet = intervals.build();
+        List<Interval> intervalList = new ArrayList<>();
+        for (UnwritableInterval i : intervalSet) intervalList.add(new Interval(i.getBegin(), i.getEnd()));
+        return intervalList;
+    }
 
-  public void addInterval(Interval interval) {
-    intervals.add(new UnwritableInterval(interval.getInf(), interval.getSup()));
-  }
+    public void addInterval(Interval interval) {
+        intervals.add(new UnwritableInterval(interval.getInf(), interval.getSup()));
+    }
 
-  public LegendEntry getLegendEntry() {
-    return ImmutableLegendEntry.builder().name(name()).color(color()).symbol(symbol()).build();
-  }
+    public LegendEntry getLegendEntry() {
+        return ImmutableLegendEntry.builder()
+                .name(name())
+                .color(color())
+                .symbol(symbol())
+                .build();
+    }
 }

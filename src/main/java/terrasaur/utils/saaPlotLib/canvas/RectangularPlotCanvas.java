@@ -92,7 +92,11 @@ public abstract class RectangularPlotCanvas extends PlotCanvas {
         configureHintsForSubpixelQuality(g);
         g.setFont(config.axisFont());
         g.setColor(Color.BLACK);
-        g.drawLine(config.leftMargin(), pageHeight - config.bottomMargin(), pageWidth - config.rightMargin(), pageHeight - config.bottomMargin());
+        g.drawLine(
+                config.leftMargin(),
+                pageHeight - config.bottomMargin(),
+                pageWidth - config.rightMargin(),
+                pageHeight - config.bottomMargin());
 
         if (xLowerAxis == null) return;
         g.setColor(xLowerAxis.getAxisColor());
@@ -104,7 +108,8 @@ public abstract class RectangularPlotCanvas extends PlotCanvas {
                 if (!xLowerAxis.getRange().closedContains(minorTick)) continue;
 
                 Path2D.Double path = new Path2D.Double();
-                double pixelX = xLowerAxis.dataToPixel(config.leftMargin(), pageWidth - config.rightMargin(), minorTick);
+                double pixelX =
+                        xLowerAxis.dataToPixel(config.leftMargin(), pageWidth - config.rightMargin(), minorTick);
                 double pixelY = pageHeight - config.bottomMargin();
                 path.moveTo(pixelX, pixelY);
                 pixelY -= config.xMinorTickLength();
@@ -132,7 +137,9 @@ public abstract class RectangularPlotCanvas extends PlotCanvas {
                 pixelY = config.getBottomPlotEdge();
 
                 Rectangle2D bb = StringUtils.boundingBox(g, tickLabels.get(majorTick));
-                double height = Math.max(bb.getHeight() * Math.abs(Math.cos(xLowerAxis.getRotateLabels())), bb.getWidth() * Math.abs(Math.sin(xLowerAxis.getRotateLabels())));
+                double height = Math.max(
+                        bb.getHeight() * Math.abs(Math.cos(xLowerAxis.getRotateLabels())),
+                        bb.getWidth() * Math.abs(Math.sin(xLowerAxis.getRotateLabels())));
                 pixelY += (g.getFontMetrics().getHeight() + height / 2);
 
                 labelEdge = Math.max(labelEdge, pixelY);
@@ -147,7 +154,9 @@ public abstract class RectangularPlotCanvas extends PlotCanvas {
 
             // we want the bounding box centered at pixelX, pixelY
             Rectangle2D bb = StringUtils.boundingBox(g, xLowerAxis.getTitle());
-            double height = Math.max(bb.getHeight() * Math.abs(Math.cos(xLowerAxis.getRotateTitle())), bb.getWidth() * Math.abs(Math.sin(xLowerAxis.getRotateTitle())));
+            double height = Math.max(
+                    bb.getHeight() * Math.abs(Math.cos(xLowerAxis.getRotateTitle())),
+                    bb.getWidth() * Math.abs(Math.sin(xLowerAxis.getRotateTitle())));
             pixelY += height;
 
             addAnnotation(g, xLowerAxis.getTitle(), pixelX, pixelY, xLowerAxis.getRotateTitle());
@@ -171,7 +180,8 @@ public abstract class RectangularPlotCanvas extends PlotCanvas {
                 if (!xUpperAxis.getRange().closedContains(minorTick)) continue;
 
                 Path2D.Double path = new Path2D.Double();
-                double pixelX = xUpperAxis.dataToPixel(config.leftMargin(), pageWidth - config.rightMargin(), minorTick);
+                double pixelX =
+                        xUpperAxis.dataToPixel(config.leftMargin(), pageWidth - config.rightMargin(), minorTick);
                 double pixelY = config.topMargin();
                 path.moveTo(pixelX, pixelY);
                 pixelY += config.xMinorTickLength();
@@ -198,7 +208,9 @@ public abstract class RectangularPlotCanvas extends PlotCanvas {
                 pixelY = config.topMargin();
 
                 Rectangle2D bb = StringUtils.boundingBox(g, tickLabels.get(majorTick));
-                double height = Math.max(bb.getHeight() * Math.abs(Math.cos(xUpperAxis.getRotateLabels())), bb.getWidth() * Math.abs(Math.sin(xUpperAxis.getRotateLabels())));
+                double height = Math.max(
+                        bb.getHeight() * Math.abs(Math.cos(xUpperAxis.getRotateLabels())),
+                        bb.getWidth() * Math.abs(Math.sin(xUpperAxis.getRotateLabels())));
                 pixelY -= (g.getFontMetrics().getHeight() + height / 2);
 
                 labelEdge = Math.min(labelEdge, pixelY);
@@ -213,7 +225,9 @@ public abstract class RectangularPlotCanvas extends PlotCanvas {
 
             // we want the bounding box centered at pixelX, pixelY
             Rectangle2D bb = StringUtils.boundingBox(g, xUpperAxis.getTitle());
-            double height = Math.max(bb.getHeight() * Math.abs(Math.cos(xUpperAxis.getRotateTitle())), bb.getWidth() * Math.abs(Math.sin(xUpperAxis.getRotateTitle())));
+            double height = Math.max(
+                    bb.getHeight() * Math.abs(Math.cos(xUpperAxis.getRotateTitle())),
+                    bb.getWidth() * Math.abs(Math.sin(xUpperAxis.getRotateTitle())));
             pixelY -= height;
 
             addAnnotation(g, xUpperAxis.getTitle(), pixelX, pixelY, xUpperAxis.getRotateTitle());
@@ -238,7 +252,8 @@ public abstract class RectangularPlotCanvas extends PlotCanvas {
 
                 Path2D.Double path = new Path2D.Double();
                 double pixelX = config.leftMargin();
-                double pixelY = yLeftAxis.dataToPixel(pageHeight - config.bottomMargin(), config.topMargin(), minorTick);
+                double pixelY =
+                        yLeftAxis.dataToPixel(pageHeight - config.bottomMargin(), config.topMargin(), minorTick);
                 path.moveTo(pixelX, pixelY);
                 pixelX += config.yMinorTickLength();
                 path.lineTo(pixelX, pixelY);
@@ -264,7 +279,9 @@ public abstract class RectangularPlotCanvas extends PlotCanvas {
                 pixelX = config.leftMargin();
 
                 Rectangle2D bb = StringUtils.boundingBox(g, tickLabels.get(majorTick));
-                double width = Math.max(bb.getWidth() * Math.abs(Math.cos(yLeftAxis.getRotateLabels())), bb.getHeight() * Math.abs(Math.sin(yLeftAxis.getRotateLabels())));
+                double width = Math.max(
+                        bb.getWidth() * Math.abs(Math.cos(yLeftAxis.getRotateLabels())),
+                        bb.getHeight() * Math.abs(Math.sin(yLeftAxis.getRotateLabels())));
                 pixelX -= (g.getFontMetrics().getMaxAdvance() + width / 2);
 
                 labelEdge = Math.min(labelEdge, pixelX);
@@ -279,7 +296,9 @@ public abstract class RectangularPlotCanvas extends PlotCanvas {
 
             // we want the bounding box centered at pixelX, pixelY
             Rectangle2D bb = StringUtils.boundingBox(g, yLeftAxis.getTitle());
-            double width = Math.max(bb.getWidth() * Math.abs(Math.cos(yLeftAxis.getRotateTitle())), bb.getHeight() * Math.abs(Math.sin(yLeftAxis.getRotateTitle())));
+            double width = Math.max(
+                    bb.getWidth() * Math.abs(Math.cos(yLeftAxis.getRotateTitle())),
+                    bb.getHeight() * Math.abs(Math.sin(yLeftAxis.getRotateTitle())));
             pixelX -= width;
 
             addAnnotation(g, yLeftAxis.getTitle(), pixelX, pixelY, yLeftAxis.getRotateTitle());
@@ -291,7 +310,11 @@ public abstract class RectangularPlotCanvas extends PlotCanvas {
         configureHintsForSubpixelQuality(g);
         g.setFont(config.axisFont());
         g.setColor(Color.BLACK);
-        g.drawLine(pageWidth - config.rightMargin(), config.topMargin(), pageWidth - config.rightMargin(), pageHeight - config.bottomMargin());
+        g.drawLine(
+                pageWidth - config.rightMargin(),
+                config.topMargin(),
+                pageWidth - config.rightMargin(),
+                pageHeight - config.bottomMargin());
 
         if (yRightAxis == null) return;
         g.setColor(yRightAxis.getAxisColor());
@@ -304,7 +327,8 @@ public abstract class RectangularPlotCanvas extends PlotCanvas {
 
                 Path2D.Double path = new Path2D.Double();
                 double pixelX = pageWidth - config.rightMargin();
-                double pixelY = yRightAxis.dataToPixel(pageHeight - config.bottomMargin(), config.topMargin(), minorTick);
+                double pixelY =
+                        yRightAxis.dataToPixel(pageHeight - config.bottomMargin(), config.topMargin(), minorTick);
                 path.moveTo(pixelX, pixelY);
                 pixelX -= config.yMinorTickLength();
                 path.lineTo(pixelX, pixelY);
@@ -330,7 +354,9 @@ public abstract class RectangularPlotCanvas extends PlotCanvas {
                 pixelX = config.getRightPlotEdge();
 
                 Rectangle2D bb = StringUtils.boundingBox(g, tickLabels.get(majorTick));
-                double width = Math.max(bb.getWidth() * Math.abs(Math.cos(yRightAxis.getRotateLabels())), bb.getHeight() * Math.abs(Math.sin(yRightAxis.getRotateLabels())));
+                double width = Math.max(
+                        bb.getWidth() * Math.abs(Math.cos(yRightAxis.getRotateLabels())),
+                        bb.getHeight() * Math.abs(Math.sin(yRightAxis.getRotateLabels())));
                 pixelX += (g.getFontMetrics().getMaxAdvance() + width / 2);
 
                 labelEdge = Math.max(labelEdge, pixelX);
@@ -345,12 +371,13 @@ public abstract class RectangularPlotCanvas extends PlotCanvas {
 
             // we want the bounding box centered at pixelX, pixelY
             Rectangle2D bb = StringUtils.boundingBox(g, yRightAxis.getTitle());
-            double width = Math.max(bb.getWidth() * Math.abs(Math.cos(yRightAxis.getRotateTitle())), bb.getHeight() * Math.abs(Math.sin(yRightAxis.getRotateTitle())));
+            double width = Math.max(
+                    bb.getWidth() * Math.abs(Math.cos(yRightAxis.getRotateTitle())),
+                    bb.getHeight() * Math.abs(Math.sin(yRightAxis.getRotateTitle())));
             pixelX += width;
 
             addAnnotation(g, yRightAxis.getTitle(), pixelX, pixelY, yRightAxis.getRotateTitle());
         }
-
     }
 
     /**
@@ -463,8 +490,14 @@ public abstract class RectangularPlotCanvas extends PlotCanvas {
         for (double majorTick : tickLabels.keySet()) {
             if (!xAxis.getRange().closedContains(majorTick)) continue;
             double pixelX = xAxis.dataToPixel(config.leftMargin(), pageWidth - config.rightMargin(), majorTick);
-            double pixelY0 = yAxis.dataToPixel(pageHeight - config.bottomMargin(), config.topMargin(), yAxis.getRange().getBegin());
-            double pixelY1 = yAxis.dataToPixel(pageHeight - config.bottomMargin(), config.topMargin(), yAxis.getRange().getEnd());
+            double pixelY0 = yAxis.dataToPixel(
+                    pageHeight - config.bottomMargin(),
+                    config.topMargin(),
+                    yAxis.getRange().getBegin());
+            double pixelY1 = yAxis.dataToPixel(
+                    pageHeight - config.bottomMargin(),
+                    config.topMargin(),
+                    yAxis.getRange().getEnd());
 
             Path2D.Double path = new Path2D.Double();
             path.moveTo(pixelX, pixelY0);
@@ -477,8 +510,14 @@ public abstract class RectangularPlotCanvas extends PlotCanvas {
         for (double majorTick : tickLabels.keySet()) {
             if (!yAxis.getRange().closedContains(majorTick)) continue;
             double pixelY = yAxis.dataToPixel(pageHeight - config.bottomMargin(), config.topMargin(), majorTick);
-            double pixelX0 = xAxis.dataToPixel(config.leftMargin(), pageWidth - config.rightMargin(), xAxis.getRange().getBegin());
-            double pixelX1 = xAxis.dataToPixel(config.leftMargin(), pageWidth - config.rightMargin(), xAxis.getRange().getEnd());
+            double pixelX0 = xAxis.dataToPixel(
+                    config.leftMargin(),
+                    pageWidth - config.rightMargin(),
+                    xAxis.getRange().getBegin());
+            double pixelX1 = xAxis.dataToPixel(
+                    config.leftMargin(),
+                    pageWidth - config.rightMargin(),
+                    xAxis.getRange().getEnd());
 
             Path2D.Double path = new Path2D.Double();
             path.moveTo(pixelX0, pixelY);
@@ -496,8 +535,7 @@ public abstract class RectangularPlotCanvas extends PlotCanvas {
      * @param color color to use for shading
      */
     public void shadeRange(AxisX axis, Collection<Interval> range, Color color) {
-        for (Interval interval : range)
-            shadeRange(axis, interval, color);
+        for (Interval interval : range) shadeRange(axis, interval, color);
     }
 
     /**
@@ -531,8 +569,7 @@ public abstract class RectangularPlotCanvas extends PlotCanvas {
      * @param color color to use for shading
      */
     public void shadeRange(AxisY axis, Collection<Interval> range, Color color) {
-        for (Interval interval : range)
-            shadeRange(axis, interval, color);
+        for (Interval interval : range) shadeRange(axis, interval, color);
     }
 
     /**
@@ -593,5 +630,4 @@ public abstract class RectangularPlotCanvas extends PlotCanvas {
     public double pixelYtoData(AxisY axis, double y) {
         return axis.pixelToData(pageHeight - config.bottomMargin(), config.topMargin(), y);
     }
-
 }

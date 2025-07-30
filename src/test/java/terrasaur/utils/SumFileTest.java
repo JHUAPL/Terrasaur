@@ -40,68 +40,60 @@ import terrasaur.utils.spice.SpiceBundle;
 
 public class SumFileTest {
 
-  @Test
-  public void testFrustum() throws IOException {
+    @Test
+    public void testFrustum() throws IOException {
 
-    File file = ResourceUtils.writeResourceToFile("/M605862153F5.SUM");
+        File file = ResourceUtils.writeResourceToFile("/M605862153F5.SUM");
 
-    Assert.assertNotNull(file);
-    List<String> lines = FileUtils.readLines(file, Charset.defaultCharset());
+        Assert.assertNotNull(file);
+        List<String> lines = FileUtils.readLines(file, Charset.defaultCharset());
 
-    SumFile sumFile = SumFile.fromLines(lines);
+        SumFile sumFile = SumFile.fromLines(lines);
 
-    assertEquals(
-        0,
-        Vector3D.angle(
-            sumFile.frustum1(),
-            new Vector3D(0.4395120989622179, 0.898199076601014, -0.008217886523401116)),
-        1E-10);
-    assertEquals(
-        0,
-        Vector3D.angle(
-            sumFile.frustum2(),
-            new Vector3D(0.43798867001719116, 0.8968954485311167, 0.06119215097329732)),
-        1E-10);
-    assertEquals(
-        0,
-        Vector3D.angle(
-            sumFile.frustum3(),
-            new Vector3D(0.3761137519676121, 0.926529032684429, -0.009077288896014253)),
-        1E-10);
-    assertEquals(
-        0,
-        Vector3D.angle(
-            sumFile.frustum4(),
-            new Vector3D(0.37459032302258627, 0.9252254046145307, 0.060332748600675515)),
-        1E-10);
-  }
+        assertEquals(
+                0,
+                Vector3D.angle(
+                        sumFile.frustum1(), new Vector3D(0.4395120989622179, 0.898199076601014, -0.008217886523401116)),
+                1E-10);
+        assertEquals(
+                0,
+                Vector3D.angle(
+                        sumFile.frustum2(), new Vector3D(0.43798867001719116, 0.8968954485311167, 0.06119215097329732)),
+                1E-10);
+        assertEquals(
+                0,
+                Vector3D.angle(
+                        sumFile.frustum3(), new Vector3D(0.3761137519676121, 0.926529032684429, -0.009077288896014253)),
+                1E-10);
+        assertEquals(
+                0,
+                Vector3D.angle(
+                        sumFile.frustum4(),
+                        new Vector3D(0.37459032302258627, 0.9252254046145307, 0.060332748600675515)),
+                1E-10);
+    }
 
-  @Ignore
-  @Test
-  public void testSPICE() {
-    SumFile sumFile1 =
-        SumFile.fromFile(
-            new File(
+    @Ignore
+    @Test
+    public void testSPICE() {
+        SumFile sumFile1 = SumFile.fromFile(new File(
                 "/project/sis/users/nairah1/SBCLT/tickets/52-create-sbmt-structure-file/spice/D717505942G0.SUM"));
 
-    SpiceBundle bundle =
-        new SpiceBundle.Builder()
-            .addMetakernels(List.of("/project/dart/data/SPICE/dra/mk/d520_v02_N0066.tm"))
-            .build();
-    EphemerisID observer = bundle.getObject("DART");
-    EphemerisID target = bundle.getObject("DIMORPHOS");
-    FOV fov = new FOVFactory(bundle.getKernelPool()).create(-135101);
+        SpiceBundle bundle = new SpiceBundle.Builder()
+                .addMetakernels(List.of("/project/dart/data/SPICE/dra/mk/d520_v02_N0066.tm"))
+                .build();
+        EphemerisID observer = bundle.getObject("DART");
+        EphemerisID target = bundle.getObject("DIMORPHOS");
+        FOV fov = new FOVFactory(bundle.getKernelPool()).create(-135101);
 
-    double t = bundle.getTimeConversion().utcStringToTDB("2022 SEP 26 23:14:23.328");
+        double t = bundle.getTimeConversion().utcStringToTDB("2022 SEP 26 23:14:23.328");
 
-    SumFile sumFile2 =
-        SumFile.fromFile(
-            new File(
+        SumFile sumFile2 = SumFile.fromFile(new File(
                 "/project/sis/users/nairah1/SBCLT/tickets/52-create-sbmt-structure-file/spice/D717506133G0.SUM"));
-    SumFile sumFile3 = sumFile1.fromSpice(bundle, observer, target, fov.getFrameID(), t);
+        SumFile sumFile3 = sumFile1.fromSpice(bundle, observer, target, fov.getFrameID(), t);
 
-    System.out.println(sumFile1);
-    System.out.println(sumFile2);
-    System.out.println(sumFile3);
-  }
+        System.out.println(sumFile1);
+        System.out.println(sumFile2);
+        System.out.println(sumFile3);
+    }
 }

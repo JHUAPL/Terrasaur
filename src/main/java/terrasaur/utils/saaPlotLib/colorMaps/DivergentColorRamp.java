@@ -59,13 +59,12 @@ public class DivergentColorRamp {
     /**
      * Transfer-matrix for the conversion of RGB to XYZ color space
      */
-    private static final MatrixIJK transferM = new MatrixIJK(0.4124564, 0.2126729, 0.0193339, 0.3575761, 0.7151522, 0.1191920, 0.1804375, 0.0721750, 0.9503041);
+    private static final MatrixIJK transferM = new MatrixIJK(
+            0.4124564, 0.2126729, 0.0193339, 0.3575761, 0.7151522, 0.1191920, 0.1804375, 0.0721750, 0.9503041);
 
     private static final MatrixIJK transferI = transferM.createInverse();
 
-    public DivergentColorRamp() {
-
-    }
+    public DivergentColorRamp() {}
 
     public static void test(List<Color> colors) {
         double[] rgb = new double[3];
@@ -79,44 +78,44 @@ public class DivergentColorRamp {
         double[] rgb2 = app.lin2rgb(lin);
 
         System.out.println("RGB->Linear->RGB");
-        for (int i = 0; i < 3; i++)
-            System.out.printf("%d %f %f %f\n", i, rgb[i], lin[i], rgb2[i]);
+        for (int i = 0; i < 3; i++) System.out.printf("%d %f %f %f\n", i, rgb[i], lin[i], rgb2[i]);
 
         System.out.println("RGB->XYZ->RGB");
         double[] xyz = app.rgb2xyz(rgb);
         rgb2 = app.xyz2rgb(xyz);
-        for (int i = 0; i < 3; i++)
-            System.out.printf("%d %f %f %f\n", i, rgb[i], xyz[i], rgb2[i]);
+        for (int i = 0; i < 3; i++) System.out.printf("%d %f %f %f\n", i, rgb[i], xyz[i], rgb2[i]);
 
         System.out.println("RGB->LAB->RGB");
         double[] lab = app.rgb2lab(rgb);
         rgb2 = app.lab2rgb(lab);
-        for (int i = 0; i < 3; i++)
-            System.out.printf("%d %f %f %f\n", i, rgb[i], lab[i], rgb2[i]);
+        for (int i = 0; i < 3; i++) System.out.printf("%d %f %f %f\n", i, rgb[i], lab[i], rgb2[i]);
 
         System.out.println("RGB->MSH->RGB");
         double[] msh = app.rgb2msh(rgb);
         rgb2 = app.msh2rgb(msh);
-        for (int i = 0; i < 3; i++)
-            System.out.printf("%d %f %f %f\n", i, rgb[i], msh[i], rgb2[i]);
+        for (int i = 0; i < 3; i++) System.out.printf("%d %f %f %f\n", i, rgb[i], msh[i], rgb2[i]);
 
-        double[] color2 = {colors.get(1).getRed(), colors.get(1).getGreen(), colors.get(1).getBlue()};
+        double[] color2 = {
+            colors.get(1).getRed(), colors.get(1).getGreen(), colors.get(1).getBlue()
+        };
         System.out.printf("Color 2: %.0f %.0f %.0f\n", color2[0], color2[1], color2[2]);
 
         System.out.println("RGB2->LAB2->RGB2");
         double[] lab2 = app.rgb2lab(color2);
         rgb2 = app.lab2rgb(lab2);
-        for (int i = 0; i < 3; i++)
-            System.out.printf("%d %f %f %f\n", i, color2[i], lab2[i], rgb2[i]);
+        for (int i = 0; i < 3; i++) System.out.printf("%d %f %f %f\n", i, color2[i], lab2[i], rgb2[i]);
 
-        double[] colorN = {colors.get(colors.size() - 1).getRed(), colors.get(colors.size() - 1).getGreen(), colors.get(colors.size() - 1).getBlue()};
+        double[] colorN = {
+            colors.get(colors.size() - 1).getRed(),
+            colors.get(colors.size() - 1).getGreen(),
+            colors.get(colors.size() - 1).getBlue()
+        };
         System.out.printf("Color %d: %.0f %.0f %.0f\n", colors.size(), colorN[0], colorN[1], colorN[2]);
 
         System.out.println("RGBN->LABN->RGBN");
         double[] labN = app.rgb2lab(colorN);
         rgb2 = app.lab2rgb(labN);
-        for (int i = 0; i < 3; i++)
-            System.out.printf("%d %f %f %f\n", i, colorN[i], colorN[i], colorN[i]);
+        for (int i = 0; i < 3; i++) System.out.printf("%d %f %f %f\n", i, colorN[i], colorN[i], colorN[i]);
 
         double x = lab[0] - lab2[0];
         double y = lab[1] - lab2[1];
@@ -129,7 +128,6 @@ public class DivergentColorRamp {
         double endDE = Math.sqrt(x * x + y * y + z * z);
 
         System.out.printf("LocalDE %f startDE %f endDE %f\n", localDE, startDE, endDE);
-
     }
 
     /**
@@ -174,7 +172,7 @@ public class DivergentColorRamp {
         VectorIJK lin = new VectorIJK(rgb2lin(rgb));
         VectorIJK v = transferM.mxv(lin);
 
-        return new double[]{v.getI(), v.getJ(), v.getK()};
+        return new double[] {v.getI(), v.getJ(), v.getK()};
     }
 
     /**
@@ -229,7 +227,6 @@ public class DivergentColorRamp {
         xyz[2] = D65.getK() * f.evaluate((lab[0] + 16.) / 116. - (lab[2] / 200.));
 
         return xyz2rgb(xyz);
-
     }
 
     /**
@@ -238,8 +235,7 @@ public class DivergentColorRamp {
     private double[] lab2msh(double[] lab) {
 
         double sum = 0;
-        for (int i = 0; i < 3; i++)
-            sum += lab[i] * lab[i];
+        for (int i = 0; i < 3; i++) sum += lab[i] * lab[i];
 
         double[] msh = new double[3];
         msh[0] = Math.sqrt(sum);
@@ -282,7 +278,8 @@ public class DivergentColorRamp {
     private double adjustHue(double[] mshSat, double mUnsat) {
         if (mshSat[0] >= mUnsat) return mshSat[2];
 
-        double hSpin = mshSat[1] * Math.sqrt(mUnsat * mUnsat - mshSat[0] * mshSat[0]) / (mshSat[0] * Math.sin(mshSat[1]));
+        double hSpin =
+                mshSat[1] * Math.sqrt(mUnsat * mUnsat - mshSat[0] * mshSat[0]) / (mshSat[0] * Math.sin(mshSat[1]));
 
         if (mshSat[2] > -Math.PI / 3) return mshSat[2] + hSpin;
 
@@ -318,7 +315,11 @@ public class DivergentColorRamp {
             msh2[2] = adjustHue(msh1, msh2[0]);
         }
 
-        double[] mshMid = {(1 - interp) * msh1[0] + interp * msh2[0], (1 - interp) * msh1[1] + interp * msh2[1], (1 - interp) * msh1[2] + interp * msh2[2]};
+        double[] mshMid = {
+            (1 - interp) * msh1[0] + interp * msh2[0],
+            (1 - interp) * msh1[1] + interp * msh2[1],
+            (1 - interp) * msh1[2] + interp * msh2[2]
+        };
 
         return msh2rgb(mshMid);
     }
@@ -340,14 +341,14 @@ public class DivergentColorRamp {
             int r = (int) Math.max(0, Math.min(255, Math.round(color[0])));
             int g = (int) Math.max(0, Math.min(255, Math.round(color[1])));
             int b = (int) Math.max(0, Math.min(255, Math.round(color[2])));
-      /*-
-      			double[] lin = rgbLinear(color);
-      			double[] lab = rgb2lab(color);
-      			double[] msh = rgb2msh(color);
+            /*-
+            			double[] lin = rgbLinear(color);
+            			double[] lab = rgb2lab(color);
+            			double[] msh = rgb2msh(color);
 
-      			System.out.printf("%d %f %3d %3d %3d %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f\n", i, frac, r,
-      					g, b, lin[0] / 100, lin[1] / 100, lin[2] / 100, lab[0], lab[1], lab[2], msh[0], msh[1], msh[2]);
-      */
+            			System.out.printf("%d %f %3d %3d %3d %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f\n", i, frac, r,
+            					g, b, lin[0] / 100, lin[1] / 100, lin[2] / 100, lab[0], lab[1], lab[2], msh[0], msh[1], msh[2]);
+            */
             colors.add(new Color(r, g, b));
         }
         return colors;
@@ -358,8 +359,14 @@ public class DivergentColorRamp {
         DiscreteDataSet localDE = new DiscreteDataSet("Local ΔE");
         DiscreteDataSet startDE = new DiscreteDataSet("Start ΔE");
         DiscreteDataSet endDE = new DiscreteDataSet("End ΔE");
-        double[] rgb0 = {colors.get(0).getRed(), colors.get(0).getGreen(), colors.get(0).getBlue()};
-        double[] rgbN = {colors.get(colors.size() - 1).getRed(), colors.get(colors.size() - 1).getGreen(), colors.get(colors.size() - 1).getBlue()};
+        double[] rgb0 = {
+            colors.get(0).getRed(), colors.get(0).getGreen(), colors.get(0).getBlue()
+        };
+        double[] rgbN = {
+            colors.get(colors.size() - 1).getRed(),
+            colors.get(colors.size() - 1).getGreen(),
+            colors.get(colors.size() - 1).getBlue()
+        };
         double[] lab0 = rgb2lab(rgb0);
         double[] labN = rgb2lab(rgbN);
         double frac0 = 0;
@@ -400,8 +407,20 @@ public class DivergentColorRamp {
         startDE.setColor(Color.MAGENTA);
         endDE.setColor(Color.ORANGE);
 
-        PlotConfig config = ImmutablePlotConfig.builder().title(String.format("Min (%d,%d,%d) Max (%d,%d,%d)", colors.get(0).getRed(), colors.get(0).getGreen(), colors.get(0).getBlue(), colors.get(colors.size() - 1).getRed(), colors.get(colors.size() - 1).getGreen(), colors.get(colors.size() - 1).getBlue())).build();
-        config = ImmutablePlotConfig.builder().from(config).legendPosition(new Point2D.Double(config.getRightPlotEdge() + 10, config.getTopPlotEdge() + 5)).build();
+        PlotConfig config = ImmutablePlotConfig.builder()
+                .title(String.format(
+                        "Min (%d,%d,%d) Max (%d,%d,%d)",
+                        colors.get(0).getRed(),
+                        colors.get(0).getGreen(),
+                        colors.get(0).getBlue(),
+                        colors.get(colors.size() - 1).getRed(),
+                        colors.get(colors.size() - 1).getGreen(),
+                        colors.get(colors.size() - 1).getBlue()))
+                .build();
+        config = ImmutablePlotConfig.builder()
+                .from(config)
+                .legendPosition(new Point2D.Double(config.getRightPlotEdge() + 10, config.getTopPlotEdge() + 5))
+                .build();
 
         AxisX xAxis = new AxisX(0, colors.size() - 1, "index", "%.0f");
         AxisY yAxis = new AxisY(0, 255, "value", "%.0f");
@@ -418,8 +437,14 @@ public class DivergentColorRamp {
         canvas.addToLegend(endDE.getLegendEntry());
         canvas.drawLegend();
 
-        ColorRamp ramp = ImmutableColorRamp.builder().min(0).max(1).colors(colors).build();
-        ColorBar cb = ImmutableColorBar.builder().rect(new Rectangle(config.getLeftPlotEdge(), config.getTopPlotEdge() - 40, config.width(), 15)).ramp(ramp).numTicks(5).tickFunction(StringFunctions.fixedFormat("%.2f")).build();
+        ColorRamp ramp =
+                ImmutableColorRamp.builder().min(0).max(1).colors(colors).build();
+        ColorBar cb = ImmutableColorBar.builder()
+                .rect(new Rectangle(config.getLeftPlotEdge(), config.getTopPlotEdge() - 40, config.width(), 15))
+                .ramp(ramp)
+                .numTicks(5)
+                .tickFunction(StringFunctions.fixedFormat("%.2f"))
+                .build();
         canvas.drawColorBar(cb);
 
         return canvas.getImage();
@@ -443,6 +468,4 @@ public class DivergentColorRamp {
 
         return new Color(r, g, b);
     }
-
-
 }

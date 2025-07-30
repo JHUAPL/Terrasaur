@@ -22,13 +22,12 @@
  */
 package terrasaur.utils;
 
-import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class ICQUtils {
     private static final Logger logger = LogManager.getLogger();
@@ -87,7 +86,7 @@ public class ICQUtils {
         return u;
     }
 
-    public static void writeICQ(int q, double[][][][] vec, String filename){
+    public static void writeICQ(int q, double[][][][] vec, String filename) {
 
         try (PrintWriter out = new PrintWriter(new FileWriter(filename))) {
             out.println(q);
@@ -104,8 +103,5 @@ public class ICQUtils {
         } catch (IOException e) {
             logger.error(e);
         }
-
     }
-
-
 }

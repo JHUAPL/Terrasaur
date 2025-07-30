@@ -45,24 +45,34 @@ import terrasaur.utils.saaPlotLib.util.PlotUtils;
 public class BarPlotDemo {
 
     public static BufferedImage plotGaussianHistogram() {
-        PlotConfig config = ImmutablePlotConfig.builder().width(800).height(600).title("Gaussian Histogram").build();
+        PlotConfig config = ImmutablePlotConfig.builder()
+                .width(800)
+                .height(600)
+                .title("Gaussian Histogram")
+                .build();
 
-        config = ImmutablePlotConfig.builder().from(config).legendPosition(new Point2D.Double(config.leftMargin() + 50, config.topMargin() + 50)).legendFont(new Font(Font.MONOSPACED, Font.BOLD, 18)).gridColor(Color.LIGHT_GRAY).build();
+        config = ImmutablePlotConfig.builder()
+                .from(config)
+                .legendPosition(new Point2D.Double(config.leftMargin() + 50, config.topMargin() + 50))
+                .legendFont(new Font(Font.MONOSPACED, Font.BOLD, 18))
+                .gridColor(Color.LIGHT_GRAY)
+                .build();
 
         AxisX xLowerAxis = new AxisX(-4, 4, "X Axis");
 
         double binSize = 0.2;
         List<Double> binBoundaries = new ArrayList<>();
         binBoundaries.add(xLowerAxis.getRange().getMin() - binSize / 2);
-        for (double x = xLowerAxis.getRange().getMin(); x <= xLowerAxis.getRange().getMax(); x += binSize) {
+        for (double x = xLowerAxis.getRange().getMin();
+                x <= xLowerAxis.getRange().getMax();
+                x += binSize) {
             binBoundaries.add(x + binSize / 2);
         }
         binBoundaries.add(xLowerAxis.getRange().getMax() + binSize / 2);
 
         HistogramDataSet data = new HistogramDataSet("Histogram", binBoundaries);
         int npts = 10000;
-        for (int i = 0; i < npts; i++)
-            data.add(new Random().nextGaussian());
+        for (int i = 0; i < npts; i++) data.add(new Random().nextGaussian());
 
         data = data.getNormalized("Normalized");
 
@@ -77,11 +87,26 @@ public class BarPlotDemo {
         List<Double> yValues = data.getYValues();
         DescriptiveStatistics stats = new DescriptiveStatistics();
         for (double y : yValues) stats.addValue(y);
-        canvas.addToLegend(ImmutableLegendEntry.builder().name(String.format("N       %d", stats.getN())).color(data.getColor()).build());
-        canvas.addToLegend(ImmutableLegendEntry.builder().name(String.format("min     %g", stats.getMin())).color(data.getColor()).build());
-        canvas.addToLegend(ImmutableLegendEntry.builder().name(String.format("max     %g", stats.getMax())).color(data.getColor()).build());
-        canvas.addToLegend(ImmutableLegendEntry.builder().name(String.format("mean    %g", stats.getMean())).color(data.getColor()).build());
-        canvas.addToLegend(ImmutableLegendEntry.builder().name(String.format("std dev %g", stats.getStandardDeviation())).color(data.getColor()).build());
+        canvas.addToLegend(ImmutableLegendEntry.builder()
+                .name(String.format("N       %d", stats.getN()))
+                .color(data.getColor())
+                .build());
+        canvas.addToLegend(ImmutableLegendEntry.builder()
+                .name(String.format("min     %g", stats.getMin()))
+                .color(data.getColor())
+                .build());
+        canvas.addToLegend(ImmutableLegendEntry.builder()
+                .name(String.format("max     %g", stats.getMax()))
+                .color(data.getColor())
+                .build());
+        canvas.addToLegend(ImmutableLegendEntry.builder()
+                .name(String.format("mean    %g", stats.getMean()))
+                .color(data.getColor())
+                .build());
+        canvas.addToLegend(ImmutableLegendEntry.builder()
+                .name(String.format("std dev %g", stats.getStandardDeviation()))
+                .color(data.getColor())
+                .build());
         canvas.drawGrid();
         canvas.drawLegend();
 
@@ -97,9 +122,18 @@ public class BarPlotDemo {
 
     public static BufferedImage plotCosX() {
 
-        PlotConfig config = ImmutablePlotConfig.builder().width(800).height(600).title("Bar Plot Example").build();
+        PlotConfig config = ImmutablePlotConfig.builder()
+                .width(800)
+                .height(600)
+                .title("Bar Plot Example")
+                .build();
 
-        config = ImmutablePlotConfig.builder().from(config).legendPosition(new Point2D.Double(config.leftMargin() + 50, config.topMargin() + 50)).legendFont(new Font("Helvetica", Font.BOLD, 36)).gridColor(Color.LIGHT_GRAY).build();
+        config = ImmutablePlotConfig.builder()
+                .from(config)
+                .legendPosition(new Point2D.Double(config.leftMargin() + 50, config.topMargin() + 50))
+                .legendFont(new Font("Helvetica", Font.BOLD, 36))
+                .gridColor(Color.LIGHT_GRAY)
+                .build();
 
         AxisX xLowerAxis = new AxisX(0, 2 * Math.PI, "X Axis");
         AxisY yLeftAxis = new AxisY(-1.5, 1.5, "Y Axis");
@@ -131,7 +165,6 @@ public class BarPlotDemo {
         image = plotGaussianHistogram();
         PlotUtils.addCreationDate(image);
         PlotCanvas.showJFrame(image);
-         PlotCanvas.writeImage("doc/images/barPlotDemo.png", image);
+        PlotCanvas.writeImage("doc/images/barPlotDemo.png", image);
     }
-
 }

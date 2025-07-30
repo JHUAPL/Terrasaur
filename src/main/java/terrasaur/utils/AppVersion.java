@@ -24,26 +24,25 @@
 package terrasaur.utils;
 
 public class AppVersion {
-    public final static String lastCommit = "25.04.27";
+    public static final String lastCommit = "25.07.30";
     // an M at the end of gitRevision means this was built from a "dirty" git repository
-    public final static String gitRevision = "cb0f7f8";
-    public final static String applicationName = "Terrasaur";
-    public final static String dateString = "2025-Apr-28 15:06:13 UTC";
+    public static final String gitRevision = "6212144";
+    public static final String applicationName = "Terrasaur";
+    public static final String dateString = "2025-Jul-30 16:05:45 UTC";
 
-	private AppVersion() {}
+    private AppVersion() {}
 
     /**
-     * Terrasaur version 25.04.27-cb0f7f8 built 2025-Apr-28 15:06:13 UTC
+     * Terrasaur version 25.07.30-6212144 built 2025-Jul-30 16:05:45 UTC
      */
     public static String getFullString() {
-      return String.format("%s version %s-%s built %s", applicationName, lastCommit, gitRevision, dateString);
+        return String.format("%s version %s-%s built %s", applicationName, lastCommit, gitRevision, dateString);
     }
 
     /**
-     * Terrasaur version 25.04.27-cb0f7f8
+     * Terrasaur version 25.07.30-6212144
      */
     public static String getVersionString() {
-      return String.format("%s version %s-%s", applicationName, lastCommit, gitRevision);
+        return String.format("%s version %s-%s", applicationName, lastCommit, gitRevision);
     }
 }
-
