@@ -29,32 +29,35 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import javax.annotation.Nullable;
+import net.jafama.FastMath;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.math3.geometry.euclidean.threed.Rotation;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.immutables.value.Value;
-import net.jafama.FastMath;
-import terrasaur.utils.ImmutableSumFile.Builder;
-import terrasaur.utils.math.MathConversions;
+import picante.math.vectorspace.RotationMatrixIJK;
+import picante.math.vectorspace.VectorIJK;
+import picante.mechanics.*;
+import picante.mechanics.providers.aberrated.AberrationCorrection;
 import spice.basic.Plane;
 import spice.basic.Ray;
 import spice.basic.RayPlaneIntercept;
 import spice.basic.SpiceException;
 import spice.basic.Vector3;
+import terrasaur.utils.ImmutableSumFile.Builder;
+import terrasaur.utils.math.MathConversions;
+import terrasaur.utils.spice.SpiceBundle;
 
 /**
  * Class describing Bob Gaskell's sum file object
- * 
- * @author nairah1
  *
+ * @author nairah1
  */
 @Value.Immutable
 public abstract class SumFile {
 
-  private final static Logger logger = LogManager.getLogger(SumFile.class);
+  private static final Logger logger = LogManager.getLogger(SumFile.class);
 
   // line 1
   public abstract String picnm();
@@ -107,23 +110,63 @@ public abstract class SumFile {
   // line 13
   public abstract Vector3D sig_ptg();
 
-  @Nullable
   public abstract Vector3D frustum1();
 
-  @Nullable
   public abstract Vector3D frustum2();
 
-  @Nullable
   public abstract Vector3D frustum3();
 
-  @Nullable
   public abstract Vector3D frustum4();
 
   /**
-   * 
-   * @param translation
-   * @param rotation
-   * @return A SumFile with the scobj transformed and the cx, cy, cz, and sz vectors rotated.
+   * @param bundle SPICE bundle
+   * @param observer spacecraft
+   * @param target target
+   * @param cameraFrame Camera Frame
+   * @param t time
+   * @return SumFile with scobj, C matrix, and sun direction evaluated using SPICE at time t
+   */
+  public SumFile fromSpice(
+      SpiceBundle bundle, EphemerisID observer, EphemerisID target, FrameID cameraFrame, double t) {
+    FrameID bodyFixedFrame = bundle.getBodyFixedFrame(target);
+    VectorIJK scobj =
+        bundle
+            .getAbProvider()
+            .createAberratedPositionVectorFunction(
+                target, observer, bodyFixedFrame, Coverage.ALL_TIME, AberrationCorrection.LT_S)
+            .getPosition(t);
+    RotationMatrixIJK cMatrix =
+        bundle
+            .getAbProvider()
+            .getFrameProvider()
+            .createFrameTransformFunction(cameraFrame, bodyFixedFrame, Coverage.ALL_TIME)
+            .getTransform(t);
+    VectorIJK sunDir =
+        bundle
+            .getAbProvider()
+            .createAberratedPositionVectorFunction(
+                CelestialBodies.SUN,
+                target,
+                bodyFixedFrame,
+                Coverage.ALL_TIME,
+                AberrationCorrection.LT_S)
+            .getPosition(t)
+            .unitize();
+
+    Builder b = ImmutableSumFile.builder().from(this);
+    b.utcString(bundle.getTimeConversion().tdbToUTCString(t, "C"));
+    b.scobj(MathConversions.toVector3D(scobj));
+    b.cx(MathConversions.toVector3D(cMatrix.mxv(VectorIJK.I)));
+    b.cy(MathConversions.toVector3D(cMatrix.mxv(VectorIJK.J)));
+    b.cz(MathConversions.toVector3D(cMatrix.mxv(VectorIJK.K)));
+    b.sz(MathConversions.toVector3D(cMatrix.mxv(sunDir)));
+    return b.build();
+  }
+
+  /**
+   * @param translation translation to apply to scobj
+   * @param rotation rotation to apply to C matrix and sun direction
+   * @return SumFile with the scobj transformed and the cx, cy, cz, and sz vectors rotated.
    */
   public SumFile transform(Vector3D translation, Rotation rotation) {
     Builder b = ImmutableSumFile.builder().from(this);
@@ -141,10 +184,8 @@ public abstract class SumFile {
   }
 
   /**
-   * Construct a SumFile from the input file
-   * 
-   * @param file
-   * @return
+   * @param file file to read
+   * @return SumFile
    */
   public static SumFile fromFile(File file) {
     SumFile s = null;
@@ -157,10 +198,8 @@ public abstract class SumFile {
   }
 
   /**
-   * Construct a SumFile from the input string list
-   * 
-   * @param lines
-   * @return
+   * @param lines lines to read
+   * @return SumFile
    */
   public static SumFile fromLines(List<String> lines) {
     Builder b = ImmutableSumFile.builder();
@@ -180,95 +219,114 @@ public abstract class SumFile {
 
     parts = lines.get(4).trim().split("\\s+");
     double[] tmp = new double[3];
-    for (int i = 0; i < 3; i++)
-      tmp[i] = parseFortranDouble(parts[i]);
+    for (int i = 0; i < 3; i++) tmp[i] = parseFortranDouble(parts[i]);
     b.scobj(new Vector3D(tmp));
 
     parts = lines.get(5).trim().split("\\s+");
     tmp = new double[3];
-    for (int i = 0; i < 3; i++)
-      tmp[i] = parseFortranDouble(parts[i]);
+    for (int i = 0; i < 3; i++) tmp[i] = parseFortranDouble(parts[i]);
     b.cx(new Vector3D(tmp).normalize());
 
     parts = lines.get(6).trim().split("\\s+");
     tmp = new double[3];
-    for (int i = 0; i < 3; i++)
-      tmp[i] = parseFortranDouble(parts[i]);
+    for (int i = 0; i < 3; i++) tmp[i] = parseFortranDouble(parts[i]);
     b.cy(new Vector3D(tmp).normalize());
 
     parts = lines.get(7).trim().split("\\s+");
     tmp = new double[3];
-    for (int i = 0; i < 3; i++)
-      tmp[i] = parseFortranDouble(parts[i]);
+    for (int i = 0; i < 3; i++) tmp[i] = parseFortranDouble(parts[i]);
     b.cz(new Vector3D(tmp).normalize());
 
     parts = lines.get(8).trim().split("\\s+");
     tmp = new double[3];
-    for (int i = 0; i < 3; i++)
-      tmp[i] = parseFortranDouble(parts[i]);
+    for (int i = 0; i < 3; i++) tmp[i] = parseFortranDouble(parts[i]);
     b.sz(new Vector3D(tmp).normalize());
 
     parts = lines.get(9).trim().split("\\s+");
     tmp = new double[3];
-    for (int i = 0; i < 3; i++)
-      tmp[i] = parseFortranDouble(parts[i]);
+    for (int i = 0; i < 3; i++) tmp[i] = parseFortranDouble(parts[i]);
     b.kmat1(new Vector3D(tmp));
     tmp = new double[3];
-    for (int i = 0; i < 3; i++)
-      tmp[i] = parseFortranDouble(parts[i + 3]);
+    for (int i = 0; i < 3; i++) tmp[i] = parseFortranDouble(parts[i + 3]);
     b.kmat2(new Vector3D(tmp));
 
     parts = lines.get(10).trim().split("\\s+");
-    for (int i = 0; i < 4; i++)
-      b.addDistortion(parseFortranDouble(parts[i]));
+    for (int i = 0; i < 4; i++) b.addDistortion(parseFortranDouble(parts[i]));
 
     parts = lines.get(11).trim().split("\\s+");
     tmp = new double[3];
-    for (int i = 0; i < 3; i++)
-      tmp[i] = parseFortranDouble(parts[i]);
+    for (int i = 0; i < 3; i++) tmp[i] = parseFortranDouble(parts[i]);
     b.sig_vso(new Vector3D(tmp));
 
     parts = lines.get(11).trim().split("\\s+");
     tmp = new double[3];
-    for (int i = 0; i < 3; i++)
-      tmp[i] = parseFortranDouble(parts[i]);
+    for (int i = 0; i < 3; i++) tmp[i] = parseFortranDouble(parts[i]);
     b.sig_ptg(new Vector3D(tmp));
+
+    b.frustum1(Vector3D.ZERO);
+    b.frustum2(Vector3D.ZERO);
+    b.frustum3(Vector3D.ZERO);
+    b.frustum4(Vector3D.ZERO);
 
     SumFile s = b.build();
     double fov1 = Math.abs(Math.atan(s.npx() / (2.0 * s.mmfl() * s.kmat1().getX())));
     double fov2 = Math.abs(Math.atan(s.nln() / (2.0 * s.mmfl() * s.kmat2().getY())));
     Vector3D cornerVector = new Vector3D(-FastMath.tan(fov1), -FastMath.tan(fov2), 1.0);
 
-    double fx = cornerVector.getX() * s.cx().getX() + cornerVector.getY() * s.cy().getX()
-        + cornerVector.getZ() * s.cz().getX();
-    double fy = cornerVector.getX() * s.cx().getY() + cornerVector.getY() * s.cy().getY()
-        + cornerVector.getZ() * s.cz().getY();
-    double fz = cornerVector.getX() * s.cx().getZ() + cornerVector.getY() * s.cy().getZ()
-        + cornerVector.getZ() * s.cz().getZ();
+    double fx =
+        cornerVector.getX() * s.cx().getX()
+            + cornerVector.getY() * s.cy().getX()
+            + cornerVector.getZ() * s.cz().getX();
+    double fy =
+        cornerVector.getX() * s.cx().getY()
+            + cornerVector.getY() * s.cy().getY()
+            + cornerVector.getZ() * s.cz().getY();
+    double fz =
+        cornerVector.getX() * s.cx().getZ()
+            + cornerVector.getY() * s.cy().getZ()
+            + cornerVector.getZ() * s.cz().getZ();
     b.frustum3(new Vector3D(fx, fy, fz).normalize());
 
-    fx = -cornerVector.getX() * s.cx().getX() + cornerVector.getY() * s.cy().getX()
-        + cornerVector.getZ() * s.cz().getX();
-    fy = -cornerVector.getX() * s.cx().getY() + cornerVector.getY() * s.cy().getY()
-        + cornerVector.getZ() * s.cz().getY();
-    fz = -cornerVector.getX() * s.cx().getZ() + cornerVector.getY() * s.cy().getZ()
-        + cornerVector.getZ() * s.cz().getZ();
+    fx =
+        -cornerVector.getX() * s.cx().getX()
+            + cornerVector.getY() * s.cy().getX()
+            + cornerVector.getZ() * s.cz().getX();
+    fy =
+        -cornerVector.getX() * s.cx().getY()
+            + cornerVector.getY() * s.cy().getY()
+            + cornerVector.getZ() * s.cz().getY();
+    fz =
+        -cornerVector.getX() * s.cx().getZ()
+            + cornerVector.getY() * s.cy().getZ()
+            + cornerVector.getZ() * s.cz().getZ();
     b.frustum4(new Vector3D(fx, fy, fz).normalize());
 
-    fx = cornerVector.getX() * s.cx().getX() - cornerVector.getY() * s.cy().getX()
-        + cornerVector.getZ() * s.cz().getX();
-    fy = cornerVector.getX() * s.cx().getY() - cornerVector.getY() * s.cy().getY()
-        + cornerVector.getZ() * s.cz().getY();
-    fz = cornerVector.getX() * s.cx().getZ() - cornerVector.getY() * s.cy().getZ()
-        + cornerVector.getZ() * s.cz().getZ();
+    fx =
+        cornerVector.getX() * s.cx().getX()
+            - cornerVector.getY() * s.cy().getX()
+            + cornerVector.getZ() * s.cz().getX();
+    fy =
+        cornerVector.getX() * s.cx().getY()
+            - cornerVector.getY() * s.cy().getY()
+            + cornerVector.getZ() * s.cz().getY();
+    fz =
+        cornerVector.getX() * s.cx().getZ()
+            - cornerVector.getY() * s.cy().getZ()
+            + cornerVector.getZ() * s.cz().getZ();
     b.frustum1(new Vector3D(fx, fy, fz).normalize());
 
-    fx = -cornerVector.getX() * s.cx().getX() - cornerVector.getY() * s.cy().getX()
-        + cornerVector.getZ() * s.cz().getX();
-    fy = -cornerVector.getX() * s.cx().getY() - cornerVector.getY() * s.cy().getY()
-        + cornerVector.getZ() * s.cz().getY();
-    fz = -cornerVector.getX() * s.cx().getZ() - cornerVector.getY() * s.cy().getZ()
-        + cornerVector.getZ() * s.cz().getZ();
+    fx =
+        -cornerVector.getX() * s.cx().getX()
+            - cornerVector.getY() * s.cy().getX()
+            + cornerVector.getZ() * s.cz().getX();
+    fy =
+        -cornerVector.getX() * s.cx().getY()
+            - cornerVector.getY() * s.cy().getY()
+            + cornerVector.getZ() * s.cz().getY();
+    fz =
+        -cornerVector.getX() * s.cx().getZ()
+            - cornerVector.getY() * s.cy().getZ()
+            + cornerVector.getZ() * s.cz().getZ();
     b.frustum2(new Vector3D(fx, fy, fz).normalize());
 
     return b.build();
@@ -277,17 +335,15 @@ public abstract class SumFile {
   /**
    * Account for numbers of the form .1192696009D+03 rather than .1192696009E+03 (i.e. a D instead
    * of an E). This function replaces D's with E's.
-   * 
-   * @param s
-   * @return
+   *
+   * @param s String
+   * @return input string with all instances of 'D' replaced with 'E'
    */
   private static double parseFortranDouble(String s) {
     return Double.parseDouble(s.replace('D', 'E'));
   }
 
-  /**
-   * Write the sum file object to a string
-   */
+  /** Write the sum file object to a string */
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
@@ -297,25 +353,52 @@ public abstract class SumFile {
         String.format("%6d%6d%6d%6d%56s\n", npx(), nln(), t1(), t2(), "  NPX, NLN, THRSH   "));
     sb.append(
         String.format("%20.10e%20.10e%20.10e%20s\n", mmfl(), px0(), ln0(), "  MMFL, CTR         "));
-    sb.append(String.format("%20.10e%20.10e%20.10e%20s\n", scobj().getX(), scobj().getY(),
-        scobj().getZ(), "  SCOBJ             "));
-    sb.append(String.format("%20.10e%20.10e%20.10e%20s\n", cx().getX(), cx().getY(), cx().getZ(),
-        "  CX                "));
-    sb.append(String.format("%20.10e%20.10e%20.10e%20s\n", cy().getX(), cy().getY(), cy().getZ(),
-        "  CY                "));
-    sb.append(String.format("%20.10e%20.10e%20.10e%20s\n", cz().getX(), cz().getY(), cz().getZ(),
-        "  CZ                "));
-    sb.append(String.format("%20.10e%20.10e%20.10e%20s\n", sz().getX(), sz().getY(), sz().getZ(),
-        "  SZ                "));
-    sb.append(String.format("%10.4f%10.4f%10.4f%10.4f%10.4f%10.4f%20s\n", kmat1().getX(),
-        kmat1().getY(), kmat1().getZ(), kmat2().getX(), kmat2().getY(), kmat2().getZ(),
-        "  K-MATRIX          "));
-    sb.append(String.format("%15.5f%15.5f%15.5f%15.5f%20s\n", distortion().get(0),
-        distortion().get(1), distortion().get(2), distortion().get(3), "  DISTORTION        "));
-    sb.append(String.format("%20.10e%20.10e%20.10e%20s\n", sig_vso().getX(), sig_vso().getY(),
-        sig_vso().getZ(), "  SIGMA_VSO                "));
-    sb.append(String.format("%20.10e%20.10e%20.10e%20s\n", sig_ptg().getX(), sig_ptg().getY(),
-        sig_ptg().getZ(), "  SIGMA_PTG                "));
+    sb.append(
+        String.format(
+            "%20.10e%20.10e%20.10e%20s\n",
+            scobj().getX(), scobj().getY(), scobj().getZ(), "  SCOBJ             "));
+    sb.append(
+        String.format(
+            "%20.10e%20.10e%20.10e%20s\n",
+            cx().getX(), cx().getY(), cx().getZ(), "  CX                "));
+    sb.append(
+        String.format(
+            "%20.10e%20.10e%20.10e%20s\n",
+            cy().getX(), cy().getY(), cy().getZ(), "  CY                "));
+    sb.append(
+        String.format(
+            "%20.10e%20.10e%20.10e%20s\n",
+            cz().getX(), cz().getY(), cz().getZ(), "  CZ                "));
+    sb.append(
+        String.format(
+            "%20.10e%20.10e%20.10e%20s\n",
+            sz().getX(), sz().getY(), sz().getZ(), "  SZ                "));
+    sb.append(
+        String.format(
+            "%10.4f%10.4f%10.4f%10.4f%10.4f%10.4f%20s\n",
+            kmat1().getX(),
+            kmat1().getY(),
+            kmat1().getZ(),
+            kmat2().getX(),
+            kmat2().getY(),
+            kmat2().getZ(),
+            "  K-MATRIX          "));
+    sb.append(
+        String.format(
+            "%15.5f%15.5f%15.5f%15.5f%20s\n",
+            distortion().get(0),
+            distortion().get(1),
+            distortion().get(2),
+            distortion().get(3),
+            "  DISTORTION        "));
+    sb.append(
+        String.format(
+            "%20.10e%20.10e%20.10e%20s\n",
+            sig_vso().getX(), sig_vso().getY(), sig_vso().getZ(), "  SIGMA_VSO                "));
+    sb.append(
+        String.format(
+            "%20.10e%20.10e%20.10e%20s\n",
+            sig_ptg().getX(), sig_ptg().getY(), sig_ptg().getZ(), "  SIGMA_PTG                "));
     sb.append(String.format("%s\n", "LANDMARKS"));
     sb.append(String.format("%s\n", "LIMB FITS"));
     sb.append(String.format("%s\n", "END FILE"));
@@ -324,95 +407,77 @@ public abstract class SumFile {
   }
 
   /**
-   * Boresight direction. This is the same as {@link #cz()}.
-   * 
-   * @return
+   * @return Boresight direction. This is the same as {@link #cz()}.
    */
   public Vector3D boresight() {
     return cz();
   }
 
   /**
-   * Sun direction. This is the same as {@link #sz()}.
-   * 
-   * @return
+   * @return Sun direction. This is the same as {@link #sz()}.
    */
   public Vector3D sunDirection() {
     return sz();
   }
 
   /**
-   * <pre>
-   * return new Vector3D(1. / npx(), frustum3().subtract(frustum4()))
-   * </pre>
-   * 
    * @return
+   *     <pre>new Vector3D(1. / npx(), frustum3().subtract(frustum4()))</pre>
    */
   public Vector3D xPerPixel() {
     return new Vector3D(1. / npx(), frustum3().subtract(frustum4()));
   }
 
   /**
-   * <pre>
-   * return new Vector3D(1. / nln(), frustum3().subtract(frustum1()));
-   * </pre>
-   * 
    * @return
+   *     <pre> new Vector3D(1. / nln(), frustum3().subtract(frustum1()));
+   *        </pre>
    */
   public Vector3D yPerPixel() {
     return new Vector3D(1. / nln(), frustum3().subtract(frustum1()));
   }
 
   /**
-   * Angular size per pixel in the X direction.
-   * 
-   * @return
+   * @return Angular size per pixel in the X direction calculated using
+   *     <pre>Vector3D.angle(frustum3(), frustum4()) / npx()</pre>
    */
   public double horizontalResolution() {
     return Vector3D.angle(frustum3(), frustum4()) / npx();
   }
 
   /**
-   * Angular size per pixel in the Y direction.
-   * 
-   * @return
+   * @return Angular size per pixel in the Y direction calculated using
+   *     <pre>Vector3D.angle(frustum3(), frustum1()) / nln()</pre>
    */
   public double verticalResolution() {
     return Vector3D.angle(frustum3(), frustum1()) / nln();
   }
 
   /**
-   * Height of the image in pixels.
-   * 
-   * @return
+   * @return Height of the image in pixels.
    */
   public int imageHeight() {
     double kmatrix00 = Math.abs(kmat1().getX());
     double kmatrix11 = Math.abs(kmat2().getY());
     int imageHeight = nln();
-    if (kmatrix00 > kmatrix11)
-      imageHeight = (int) Math.round(nln() * (kmatrix00 / kmatrix11));
+    if (kmatrix00 > kmatrix11) imageHeight = (int) Math.round(nln() * (kmatrix00 / kmatrix11));
     return imageHeight;
   }
 
   /**
-   * Width of the image in pixels.
-   * 
-   * @return
+   * @return Width of the image in pixels.
    */
   public int imageWidth() {
     double kmatrix00 = Math.abs(kmat1().getX());
     double kmatrix11 = Math.abs(kmat2().getY());
     int imageWidth = npx();
-    if (kmatrix11 > kmatrix00)
-      imageWidth = (int) Math.round(npx() * (kmatrix11 / kmatrix00));
+    if (kmatrix11 > kmatrix00) imageWidth = (int) Math.round(npx() * (kmatrix11 / kmatrix00));
     return imageWidth;
   }
 
   /**
-   * Get the rotation to convert from body fixed coordinates to camera coordinates. {@link #cx()},
-   * {@link #cx()}, {@link #cz()} are the rows of this matrix.
-   * 
+   * @return rotation to convert from body fixed coordinates to camera coordinates. {@link #cx()},
+   *     {@link #cx()}, {@link #cz()} are the rows of this matrix.
    */
   public Rotation getBodyFixedToCamera() {
     double[][] m = new double[3][];
@@ -423,9 +488,8 @@ public abstract class SumFile {
   }
 
   /**
-   * 
    * @param directions from the spacecraft, in the body fixed frame.
-   * @return
+   * @return list of booleans set to true if direction is in the field of view, or false if not
    * @throws SpiceException
    */
   public List<Boolean> isInFOV(List<Vector3> directions) throws SpiceException {
@@ -450,10 +514,10 @@ public abstract class SumFile {
     }
 
     Path2D.Double shape = new Path2D.Double();
-    shape.moveTo(xAxis.dot(points.get(0)), yAxis.dot(points.get(0)));
+    shape.moveTo(xAxis.dot(points.getFirst()), yAxis.dot(points.getFirst()));
     for (int i = 1; i < points.size(); i++)
       shape.lineTo(xAxis.dot(points.get(i)), yAxis.dot(points.get(i)));
-    shape.lineTo(xAxis.dot(points.get(0)), yAxis.dot(points.get(0)));
+    shape.lineTo(xAxis.dot(points.getFirst()), yAxis.dot(points.getFirst()));
 
     for (Vector3 direction : directions) {
       RayPlaneIntercept rpi =
@@ -464,5 +528,4 @@ public abstract class SumFile {
 
     return Collections.unmodifiableList(isInFOV);
   }
-
 }

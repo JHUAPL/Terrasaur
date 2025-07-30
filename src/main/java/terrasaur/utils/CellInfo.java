@@ -129,7 +129,7 @@ public abstract class CellInfo {
     polydata.GetPoint(idList.GetId(2), pt2);
   }
 
-  private static CellInfo fromPoints(double[] pt0, double[] pt1, double[] pt2) {
+  public static CellInfo fromPoints(double[] pt0, double[] pt1, double[] pt2) {
 
     ImmutableCellInfo.Builder builder = ImmutableCellInfo.builder();
     builder.pt0(new Vector3D(pt0));

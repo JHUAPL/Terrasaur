@@ -305,8 +305,8 @@ public class PointCloudFormatConverter implements TerrasaurTool {
           }
         } else {
           if (halfSize < 0 || groundSampleDistance < 0) {
-            System.out.printf(
-                "Must supply -halfSize and -groundSampleDistance for %s output\n",
+            logger.error(
+                "Must supply -halfSize and -groundSampleDistance for {} output",
                     outFormat);
             return;
           }

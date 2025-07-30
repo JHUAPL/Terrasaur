@@ -80,6 +80,7 @@ public class FibonacciSphere implements SphericalTessellation {
   }
 
   /**
+   * Get statistics on the distances between each point and its closest neighbor
    * 
    * @return statistics on the distances between each point and its closest neighbor
    */
@@ -181,9 +182,10 @@ public class FibonacciSphere implements SphericalTessellation {
   }
 
   /**
+   * Get the nearest point from the desired location.
    *
    * @param lv input location
-   * @return key is distance to tile center in radians, value is tile index
+   * @return key is distance in radians, value is point index
    */
   public Map.Entry<Double, Long> getNearest(LatitudinalVector lv) {
     return getNearest(CoordConverters.convert(lv));
@@ -198,7 +200,7 @@ public class FibonacciSphere implements SphericalTessellation {
    * 
    * 
    * @param ijk cartesian coordinates
-   * @return key is distance to tile center in radians, value is tile index
+   * @return key is distance in radians, value is point index
    */
   public Map.Entry<Double, Long> getNearest(UnwritableVectorIJK ijk) {
     final long n = getNumTiles();
@@ -248,7 +250,7 @@ public class FibonacciSphere implements SphericalTessellation {
       }
     }
 
-    return new AbstractMap.SimpleEntry<>(Math.sqrt(d), j);
+    return new AbstractMap.SimpleEntry<Double, Long>(Math.sqrt(d), j);
   }
 
   private MatrixIJ getLocalToGlobalTransform(UnwritableVectorIJK p) {
@@ -282,8 +284,8 @@ public class FibonacciSphere implements SphericalTessellation {
 
   /**
    *
-   * @param i tile index
-   * @return distance to this tile's closest neighbor center
+   * @param i point index
+   * @return distance to this point's closest neighbor
    */
   public Double getDist(int i) {
     return getClosestNeighborDistance().get(i);
@@ -292,7 +294,7 @@ public class FibonacciSphere implements SphericalTessellation {
   /**
    *
    * @param lv input point
-   * @return map of tile indices sorted by distance from the input point
+   * @return map of points sorted by distance from the input point
    */
   public NavigableMap<Double, Integer> getDistanceMap(LatitudinalVector lv) {
     UnwritableVectorIJK ijk = CoordConverters.convert(lv);

@@ -60,8 +60,7 @@ public class CreateSBMTStructure implements TerrasaurTool {
 
   @Override
   public String fullDescription(Options options) {
-    String header =
-        "This tool creates an SBMT ellipse file from a set of point on an image.";
+    String header = "This tool creates an SBMT ellipse file from a set of points on an image.";
     String footer = "";
     return TerrasaurTool.super.fullDescription(options, header, footer);
   }
@@ -130,19 +129,30 @@ public class CreateSBMTStructure implements TerrasaurTool {
   private static Options defineOptions() {
     Options options = TerrasaurTool.defineOptions();
     options.addOption(
+        Option.builder("flipX")
+            .desc("If present, negate the X coordinate of the input points.")
+            .build());
+    options.addOption(
+        Option.builder("flipY")
+            .desc("If present, negate the Y coordinate of the input points.")
+            .build());
+    options.addOption(
         Option.builder("input")
             .required()
             .hasArg()
             .desc(
-                """
-Required.  Name or input file.  This is a text file with a pair of pixel coordinates per line.  The pixel
+"""
+Required.  Name or input file.  This is a text file with a pair of pixel coordinates (X and Y) per line.  The pixel
 coordinates are offsets from the image center. For example:
 
 # My test file
 
-627.51274 876.11775
-630.53612 883.55992
-626.3499 881.46681
+89.6628 285.01
+97.8027 280.126
+95.0119 285.01
+-13.8299 323.616
+-1.9689 331.756
+-11.7367 330.826
 
 Empty lines or lines beginning with # are ignored.
 
@@ -162,10 +172,37 @@ axis and the third is a location for the semi-minor axis.""")
             .desc("Required.  Name of output file.")
             .build());
     options.addOption(
+        Option.builder("spice")
+            .hasArg()
+            .desc(
+                "If present, name of metakernel to read.  Other required options with -spice are -date, -observer, -target, and -cameraFrame.")
+            .build());
+    options.addOption(
+        Option.builder("date")
+            .hasArgs()
+            .desc("Only used with -spice.  Date of image (e.g. 2022 SEP 26 23:11:12.649).")
+            .build());
+    options.addOption(
+        Option.builder("observer")
+            .hasArg()
+            .desc("Only used with -spice. Observing body (e.g. DART)")
+            .build());
+    options.addOption(
+        Option.builder("target")
+            .hasArg()
+            .desc("Only used with -spice. Target body (e.g. DIMORPHOS).")
+            .build());
+    options.addOption(
+        Option.builder("cameraFrame")
+            .hasArg()
+            .desc("Only used with -spice. Camera frame (e.g. DART_DRACO).")
+            .build());
+    options.addOption(
         Option.builder("sumFile")
             .required()
             .hasArg()
-            .desc("Required.  Name of sum file to read.")
+            .desc(
+                "Required.  Name of sum file to read.  This is still required with -spice, but only used as a template to create a new sum file.")
             .build());
     return options;
   }
@@ -179,7 +216,7 @@ axis and the third is a location for the semi-minor axis.""")
 
     Map<MessageLabel, String> startupMessages = defaultOBJ.startupMessages(cl);
     for (MessageLabel ml : startupMessages.keySet())
-      logger.info(String.format("%s %s", ml.label, startupMessages.get(ml)));
+      logger.info("{} {}", ml.label, startupMessages.get(ml));
 
     NativeLibraryLoader.loadSpiceLibraries();
     NativeLibraryLoader.loadVtkLibraries();
@@ -195,6 +232,8 @@ axis and the third is a location for the semi-minor axis.""")
       }
       RangeFromSumFile rfsf = new RangeFromSumFile(sumFile, polyData);
 
+      boolean flipX = cl.hasOption("flipX");
+      boolean flipY = cl.hasOption("flipY");
       List<Vector3D> intercepts = new ArrayList<>();
       List<String> lines =
           FileUtils.readLines(new File(cl.getOptionValue("input")), Charset.defaultCharset());
@@ -203,6 +242,9 @@ axis and the third is a location for the semi-minor axis.""")
         String[] parts = line.split("\\s+");
         int ix = (int) Math.round(Double.parseDouble(parts[0]));
         int iy = (int) Math.round(Double.parseDouble(parts[1]));
+
+        if (flipX) ix *= -1;
+        if (flipY) iy *= -1;
 
         Map.Entry<Long, Vector3D> entry = rfsf.findIntercept(ix, iy);
         long cellID = entry.getKey();
@@ -216,12 +258,13 @@ axis and the third is a location for the semi-minor axis.""")
 
         // p1 and p2 define the long axis of the ellipse
         Vector3D p1 = intercepts.get(i);
-        Vector3D p2 = intercepts.get(i+1);
+        Vector3D p2 = intercepts.get(i + 1);
 
         // p3 lies on the short axis
-        Vector3D p3 = intercepts.get(i+2);
+        Vector3D p3 = intercepts.get(i + 2);
 
-        SBMTEllipseRecord record = createRecord(i/3, String.format("Ellipse %d", i/3), p1, p2, p3);
+        SBMTEllipseRecord record =
+            createRecord(i / 3, String.format("Ellipse %d", i / 3), p1, p2, p3);
         records.add(record);
       }
 

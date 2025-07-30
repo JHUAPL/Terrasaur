@@ -30,7 +30,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
@@ -65,6 +64,12 @@ public class ValidateNormals implements TerrasaurTool {
 
   static Options defineOptions() {
     Options options = TerrasaurTool.defineOptions();
+    options.addOption(
+            Option.builder("fast")
+                    .desc("If present, only check for overhangs if center and normal point in opposite " +
+                            "directions.  Default behavior is to always check for intersections between body center " +
+                            "and facet center.")
+                    .build());
     options.addOption(
         Option.builder("origin")
             .hasArg()
@@ -126,10 +131,12 @@ public class ValidateNormals implements TerrasaurTool {
 
     private final long index0;
     private final long index1;
+    private final boolean fast;
 
-    public FlippedNormalFinder(long index0, long index1) {
+    public FlippedNormalFinder(long index0, long index1, boolean fast) {
       this.index0 = index0;
       this.index1 = index1;
+      this.fast = fast;
     }
 
     @Override
@@ -158,20 +165,21 @@ public class ValidateNormals implements TerrasaurTool {
         long index = index0 + i;
 
         CellInfo ci = CellInfo.getCellInfo(polyData, index, idList);
-        getOBBTree().IntersectWithLine(origin, ci.center().toArray(), null, cellIds);
+        boolean isOpposite = (ci.center().dotProduct(ci.normal()) < 0);
 
-        // count up all crossings of the surface between the origin and the facet.
         int numCrossings = 0;
-        for (int j = 0; j < cellIds.GetNumberOfIds(); j++) {
-          if (cellIds.GetId(j) == index) break;
-          numCrossings++;
+        if (isOpposite || !fast) {
+          // count up all crossings of the surface between the origin and the facet.
+          getOBBTree().IntersectWithLine(origin, ci.center().toArray(), null, cellIds);
+          for (int j = 0; j < cellIds.GetNumberOfIds(); j++) {
+            if (cellIds.GetId(j) == index) break;
+            numCrossings++;
+          }
         }
 
         // if numCrossings is even, the radial and normal should point in the same direction. If it
-        // is odd, the
-        // radial and normal should point in opposite directions.
+        // is odd, the radial and normal should point in opposite directions.
         boolean shouldBeOpposite = (numCrossings % 2 == 1);
-        boolean isOpposite = (ci.center().dotProduct(ci.normal()) < 0);
 
         // XOR operator - true if both conditions are different
         if (isOpposite ^ shouldBeOpposite) flippedNormals.add(index);
@@ -208,7 +216,7 @@ public class ValidateNormals implements TerrasaurTool {
 
     Map<MessageLabel, String> startupMessages = defaultOBJ.startupMessages(cl);
     for (MessageLabel ml : startupMessages.keySet())
-      logger.info(String.format("%s %s", ml.label, startupMessages.get(ml)));
+      logger.info("{} {}", ml.label, startupMessages.get(ml));
 
     NativeLibraryLoader.loadVtkLibraries();
 
@@ -234,6 +242,7 @@ public class ValidateNormals implements TerrasaurTool {
 
     Set<Long> flippedNormals = new HashSet<>();
 
+    boolean fast = cl.hasOption("fast");
     int numThreads =
         cl.hasOption("numThreads") ? Integer.parseInt(cl.getOptionValue("numThreads")) : 1;
     try (ExecutorService executor = Executors.newFixedThreadPool(numThreads)) {
@@ -244,7 +253,7 @@ public class ValidateNormals implements TerrasaurTool {
         long fromIndex = i * numFacets;
         long toIndex = Math.min(polyData.GetNumberOfCells(), fromIndex + numFacets);
 
-        FlippedNormalFinder fnf = app.new FlippedNormalFinder(fromIndex, toIndex);
+        FlippedNormalFinder fnf = app.new FlippedNormalFinder(fromIndex, toIndex, fast);
         futures.add(executor.submit(fnf));
       }
 

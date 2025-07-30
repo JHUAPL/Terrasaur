@@ -308,7 +308,7 @@ public class ValidateOBJ implements TerrasaurTool {
       TriangularFacet facet =
           new TriangularFacet(new VectorIJK(pt0), new VectorIJK(pt1), new VectorIJK(pt2));
       if (facet.getArea() > 0) {
-        stats.addValue(facet.getCenter().getDot(facet.getNormal()));
+        stats.addValue(facet.getCenter().createUnitized().getDot(facet.getNormal()));
         cStats.add(facet.getCenter());
         nStats.add(facet.getNormal());
       }
@@ -374,7 +374,7 @@ public class ValidateOBJ implements TerrasaurTool {
 
     Map<MessageLabel, String> startupMessages = defaultOBJ.startupMessages(cl);
     for (MessageLabel ml : startupMessages.keySet())
-      logger.info(String.format("%s %s", ml.label, startupMessages.get(ml)));
+      logger.info("{} {}", ml.label, startupMessages.get(ml));
 
     NativeLibraryLoader.loadVtkLibraries();
     vtkPolyData polyData = PolyDataUtil.loadShapeModel(cl.getOptionValue("obj"));
@@ -418,7 +418,7 @@ public class ValidateOBJ implements TerrasaurTool {
 
     if (cl.hasOption("output")) {
       PolyDataUtil.saveShapeModelAsOBJ(polyData, cl.getOptionValue("output"));
-      logger.info(String.format("Wrote OBJ file %s", cl.getOptionValue("output")));
+      logger.info("Wrote OBJ file {}", cl.getOptionValue("output"));
     }
   }
 }

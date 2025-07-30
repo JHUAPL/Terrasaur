@@ -313,7 +313,7 @@ public class RenderShapeFromSumFile implements TerrasaurTool {
     logger.printf(
         Level.DEBUG,
         "Thread %d lat/lon %.2f/%.2f, %s, sum %f, cells %d, %.2f",
-        Thread.currentThread().getId(),
+        Thread.currentThread().threadId(),
         Math.toDegrees(intersectPoint.getDelta()),
         Math.toDegrees(intersectPoint.getAlpha()),
         intersectPoint.toString(),
@@ -338,7 +338,7 @@ public class RenderShapeFromSumFile implements TerrasaurTool {
     @Override
     public Map<Integer, Brightness> call() throws Exception {
 
-      logger.info("Thread {}: starting", Thread.currentThread().getId());
+      logger.info("Thread {}: starting", Thread.currentThread().threadId());
 
       int xPixels = subPixel * nPixelsX;
 
@@ -380,7 +380,7 @@ public class RenderShapeFromSumFile implements TerrasaurTool {
                 logger.debug(
                     String.format(
                         "Thread %d: No intersection with local model for pixel (%d,%d): lat/lon %.2f/%.2f, using global intersection %d %s",
-                        Thread.currentThread().getId(),
+                        Thread.currentThread().threadId(),
                         i,
                         j,
                         Math.toDegrees(intersectPt3D.getDelta()),
@@ -397,7 +397,7 @@ public class RenderShapeFromSumFile implements TerrasaurTool {
         }
       }
 
-      logger.info("Thread {}: finished", Thread.currentThread().getId());
+      logger.info("Thread {}: finished", Thread.currentThread().threadId());
 
       return brightness;
     }

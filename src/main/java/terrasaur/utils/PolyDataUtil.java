@@ -521,17 +521,17 @@ public class PolyDataUtil {
     n[q][q][4] = n[0][q][3];
     n[q][q][5] = n[0][q][3];
 
-    try (PrintWriter pw = new PrintWriter("java.txt")) {
-      for (int f = 0; f < 6; f++) {
-        for (int i = 0; i < q; i++) {
-          for (int j = 0; j < q; j++) {
-            pw.printf("%3d%3d%3d%6d\n", i, j, f + 1, n[i][j][f]);
-          }
-        }
-      }
-    } catch (FileNotFoundException e) {
-      logger.error(e.getLocalizedMessage());
-    }
+//    try (PrintWriter pw = new PrintWriter("java.txt")) {
+//      for (int f = 0; f < 6; f++) {
+//        for (int i = 0; i < q; i++) {
+//          for (int j = 0; j < q; j++) {
+//            pw.printf("%3d%3d%3d%6d\n", i, j, f + 1, n[i][j][f]);
+//          }
+//        }
+//      }
+//    } catch (FileNotFoundException e) {
+//      logger.error(e.getLocalizedMessage());
+//    }
 
     pltLines.add(String.format("%d", 12 * q * q));
     n0 = 0;

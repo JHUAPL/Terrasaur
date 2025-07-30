@@ -29,13 +29,12 @@ import picante.math.vectorspace.UnwritableVectorIJK;
 import java.awt.geom.Point2D;
 
 /**
- * Implement a stereographic projection. This is package private so that there's no conflict with
- * anything in the cartography package. Based on Snyder (1987).
+ * Implement a stereographic projection. Based on Snyder (1987).
  * 
  * @author nairah1
  *
  */
-class StereographicProjection {
+public class StereographicProjection {
 
   private final double centerLat, centerLon;
   private final double sinCenterLat, cosCenterLat;
@@ -47,7 +46,7 @@ class StereographicProjection {
    * 
    * @param center projection center
    */
-  StereographicProjection(LatitudinalVector center) {
+  public StereographicProjection(LatitudinalVector center) {
     this(1.0, center);
   }
 
@@ -58,7 +57,7 @@ class StereographicProjection {
    * @param R scale
    * @param center projection center
    */
-  StereographicProjection(double R, LatitudinalVector center) {
+  public StereographicProjection(double R, LatitudinalVector center) {
     this.R = R;
     this.centerLat = center.getLatitude();
     this.centerLon = center.getLongitude();

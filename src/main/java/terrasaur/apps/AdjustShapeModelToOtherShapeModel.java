@@ -25,7 +25,6 @@ package terrasaur.apps;
 import java.io.File;
 import java.nio.charset.Charset;
 import java.util.*;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
@@ -33,14 +32,14 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import spice.basic.Plane;
+import spice.basic.Vector3;
 import terrasaur.smallBodyModel.BoundingBox;
 import terrasaur.smallBodyModel.SmallBodyModel;
 import terrasaur.templates.TerrasaurTool;
 import terrasaur.utils.Log4j2Configurator;
 import terrasaur.utils.NativeLibraryLoader;
 import terrasaur.utils.PolyDataUtil;
-import spice.basic.Plane;
-import spice.basic.Vector3;
 import vtk.vtkGenericCell;
 import vtk.vtkPoints;
 import vtk.vtkPolyData;
@@ -76,7 +75,7 @@ public class AdjustShapeModelToOtherShapeModel implements TerrasaurTool {
     return TerrasaurTool.super.fullDescription(options, header, "");
   }
 
-    private static Options defineOptions() {
+  private static Options defineOptions() {
     Options options = TerrasaurTool.defineOptions();
     options.addOption(
         Option.builder("from")
@@ -182,6 +181,7 @@ public class AdjustShapeModelToOtherShapeModel implements TerrasaurTool {
     Vector3D origin = new Vector3D(0., 0., 0.);
     for (int i = 0; i < numberPoints; ++i) {
       points.GetPoint(i, p);
+      Vector3D thisPoint = new Vector3D(p);
 
       Vector3D lookDir;
 
@@ -198,18 +198,20 @@ public class AdjustShapeModelToOtherShapeModel implements TerrasaurTool {
       }
 
       Vector3D lookPt = lookDir.scalarMultiply(diagonalLength);
-      lookPt = lookPt.add(origin);
+      lookPt = lookPt.add(thisPoint);
 
       List<Vector3D> intersections = new ArrayList<>();
       for (vtksbCellLocator cellLocator : cellLocators) {
         double[] intersectPoint = new double[3];
 
-        // trace ray from the lookPt to the origin - first intersection is the farthest intersection
-        // from the origin
+        // trace ray from thisPoint to the lookPt - Assume cell intersection is the closest one if
+        // there are multiple?
+        // NOTE: result should return 1 in case of intersection but doesn't sometimes.
+        // Use the norm of intersection point to test for intersection instead.
         int result =
             cellLocator.IntersectWithLine(
+                thisPoint.toArray(),
                 lookPt.toArray(),
-                origin.toArray(),
                 tol,
                 t,
                 intersectPoint,
@@ -219,38 +221,32 @@ public class AdjustShapeModelToOtherShapeModel implements TerrasaurTool {
                 cell);
         Vector3D intersectVector = new Vector3D(intersectPoint);
 
-        if (fitPlane || localModel) {
-          // NOTE: result should return 1 in case of intersection but doesn't sometimes.
-          // Use the norm of intersection point to test for intersection instead.
-
-          NavigableMap<Double, Vector3D> pointsMap = new TreeMap<>();
-          if (intersectVector.getNorm() > 0) {
-            pointsMap.put(origin.subtract(intersectVector).getNorm(), intersectVector);
-          }
-
-          lookPt = lookDir.scalarMultiply(-diagonalLength);
-          lookPt = lookPt.add(origin);
-          result =
-              cellLocator.IntersectWithLine(
-                  lookPt.toArray(),
-                  origin.toArray(),
-                  tol,
-                  t,
-                  intersectPoint,
-                  pcoords,
-                  subId,
-                  cell_id,
-                  cell);
-
-          intersectVector = new Vector3D(intersectPoint);
-          if (intersectVector.getNorm() > 0) {
-            pointsMap.put(origin.subtract(intersectVector).getNorm(), intersectVector);
-          }
-
-          if (!pointsMap.isEmpty()) intersections.add(pointsMap.get(pointsMap.firstKey()));
-        } else {
-          if (result > 0) intersections.add(intersectVector);
+        NavigableMap<Double, Vector3D> pointsMap = new TreeMap<>();
+        if (intersectVector.getNorm() > 0) {
+          pointsMap.put(thisPoint.subtract(intersectVector).getNorm(), intersectVector);
         }
+
+        // look in the other direction
+        lookPt = lookDir.scalarMultiply(-diagonalLength);
+        lookPt = lookPt.add(thisPoint);
+        result =
+            cellLocator.IntersectWithLine(
+                thisPoint.toArray(),
+                lookPt.toArray(),
+                tol,
+                t,
+                intersectPoint,
+                pcoords,
+                subId,
+                cell_id,
+                cell);
+
+        intersectVector = new Vector3D(intersectPoint);
+        if (intersectVector.getNorm() > 0) {
+          pointsMap.put(thisPoint.subtract(intersectVector).getNorm(), intersectVector);
+        }
+
+        if (!pointsMap.isEmpty()) intersections.add(pointsMap.get(pointsMap.firstKey()));
       }
 
       if (intersections.isEmpty()) throw new Exception("Error: no intersections at all");
